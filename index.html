@@ -1,5 +1,6 @@
 <html>
 <head>
+<link rel="manifest" href="manifest.json">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#1A1B23;font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;}
@@ -22,7 +23,6 @@ body{background:#1A1B23;font-family:Arial;color:#F59E0B;min-height:100vh;padding
 .games-box{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
 .games-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:10px;text-align:center;text-shadow:0 0 10px #F59E0B;}
 
-/* Search bar inside games box */
 .search-bar{position:relative;margin-bottom:12px;}
 .search-bar input{width:100%;padding:10px 15px 10px 38px;border-radius:25px;border:1px solid rgba(245,158,11,0.3);background:rgba(255,255,255,0.05);color:#FFD700;font-size:13px;outline:none;}
 .search-bar input::placeholder{color:#666;}
@@ -39,11 +39,17 @@ body{background:#1A1B23;font-family:Arial;color:#F59E0B;min-height:100vh;padding
 .sierra{background:linear-gradient(45deg,#1565C0,#4fc3f7);color:white;}
 .divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,#F59E0B,transparent);margin:8px auto;}
 .footer{color:#444;font-size:11px;margin-top:20px;padding-bottom:15px;text-align:center;}
+
+#installBtn{display:none;background:linear-gradient(45deg,#F59E0B,#FFD700);color:black;border:none;border-radius:25px;padding:10px 20px;font-size:14px;font-weight:bold;cursor:pointer;margin:0 auto 15px;display:none;width:90%;max-width:300px;}
 </style>
 </head>
 <body>
 
-<h1 style="color:#F59E0B;font-size:20px;margin-bottom:15px;text-align:center;text-shadow:0 0 15px #F59E0B;">🎮 My Game Zone!</h1>
+<h1 style="color:#F59E0B;font-size:20px;margin-bottom:10px;text-align:center;text-shadow:0 0 15px #F59E0B;">🎮 My Game Zone!</h1>
+
+<div style="text-align:center;">
+<button id="installBtn" onclick="installApp()">📱 Install App</button>
+</div>
 
 <div class="main-layout">
 
@@ -87,7 +93,6 @@ body{background:#1A1B23;font-family:Arial;color:#F59E0B;min-height:100vh;padding
       <div class="games-title">🎮 My Games</div>
       <div class="divider"></div>
 
-      <!-- Search bar inside games box top -->
       <div class="search-bar">
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="Search games..." onkeyup="searchGames()">
@@ -142,7 +147,24 @@ function searchGames(){
   });
   document.getElementById('noResults').style.display=found==0?'block':'none';
 }
+
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBtn').style.display='block';
+});
+
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result){
+      deferredPrompt=null;
+      document.getElementById('installBtn').style.display='none';
+    });
+  }
+}
 </script>
 
 </body>
-  </html>
+</html>
