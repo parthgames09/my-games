@@ -1,0 +1,169 @@
+<html>
+<head>
+<style>
+*{margin:0;padding:0;}
+body{background:black;overflow:hidden;}
+canvas{display:block;}
+#ui{position:absolute;top:10px;left:0;right:0;text-align:center;color:white;font-family:Arial;}
+#score{font-size:20px;color:#FFD700;text-shadow:0 0 10px gold;}
+#result{font-size:22px;color:red;font-weight:bold;}
+#controls{position:absolute;bottom:20px;left:0;right:0;text-align:center;}
+.btn{padding:12px 25px;font-size:18px;border:none;border-radius:10px;cursor:pointer;margin:5px;}
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div id="score">Score: 0</div>
+  <div id="result"></div>
+</div>
+
+<div id="controls">
+  <button class="btn" onclick="moveLeft()" style="background:#FFD700;color:black;">◀</button>
+  <button class="btn" onclick="startGame()" style="background:lime;color:black;">START</button>
+  <button class="btn" onclick="moveRight()" style="background:#FFD700;color:black;">▶</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// Scene setup
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+// Fog
+scene.fog = new THREE.Fog(0x000000, 10, 50);
+
+// Lights
+var ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
+var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(5, 10, 5);
+scene.add(dirLight);
+
+// Road
+var roadGeo = new THREE.PlaneGeometry(10, 200);
+var roadMat = new THREE.MeshLambertMaterial({color:0x333333});
+var road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI/2;
+scene.add(road);
+
+// Road lines
+function makeLine(x){
+  var geo = new THREE.PlaneGeometry(0.2, 200);
+  var mat = new THREE.MeshLambertMaterial({color:0xFFFFFF});
+  var line = new THREE.Mesh(geo, mat);
+  line.rotation.x = -Math.PI/2;
+  line.position.set(x, 0.01, 0);
+  scene.add(line);
+}
+makeLine(-2); makeLine(0); makeLine(2);
+
+// Player Car
+function makeCar(color){
+  var car = new THREE.Group();
+  var bodyGeo = new THREE.BoxGeometry(1.5, 0.5, 3);
+  var bodyMat = new THREE.MeshLambertMaterial({color:color});
+  var body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 0.5;
+  car.add(body);
+  var topGeo = new THREE.BoxGeometry(1, 0.4, 1.5);
+  var top = new THREE.Mesh(topGeo, bodyMat);
+  top.position.set(0, 0.95, 0);
+  car.add(top);
+  // Wheels
+  var wheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 8);
+  var wheelMat = new THREE.MeshLambertMaterial({color:0x111111});
+  var positions = [[-0.8,0.3,1],[0.8,0.3,1],[-0.8,0.3,-1],[0.8,0.3,-1]];
+  positions.forEach(function(p){
+    var w = new THREE.Mesh(wheelGeo, wheelMat);
+    w.rotation.z = Math.PI/2;
+    w.position.set(p[0],p[1],p[2]);
+    car.add(w);
+  });
+  return car;
+}
+
+var playerCar = makeCar(0xFF0000);
+playerCar.position.set(0, 0, 5);
+scene.add(playerCar);
+
+camera.position.set(0, 4, 10);
+camera.lookAt(0, 0, 0);
+
+// Game vars
+var score = 0;
+var speed = 0.15;
+var running = false;
+var obstacles = [];
+var playerX = 0;
+
+function moveLeft(){
+  if(playerX > -3) playerX -= 1.5;
+}
+function moveRight(){
+  if(playerX < 3) playerX += 1.5;
+}
+
+function startGame(){
+  score = 0;
+  speed = 0.15;
+  running = true;
+  playerX = 0;
+  obstacles.forEach(function(ob){scene.remove(ob);});
+  obstacles = [];
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('score').innerHTML = 'Score: 0';
+  animate();
+}
+
+function spawnObstacle(){
+  var colors = [0x0000FF, 0x00FF00, 0xFF8800];
+  var color = colors[Math.floor(Math.random()*3)];
+  var ob = makeCar(color);
+  var lanes = [-3, 0, 3];
+  var lane = lanes[Math.floor(Math.random()*3)];
+  ob.position.set(lane, 0, -30);
+  scene.add(ob);
+  obstacles.push(ob);
+}
+
+var frameCount = 0;
+function animate(){
+  if(!running) return;
+  requestAnimationFrame(animate);
+
+  frameCount++;
+  if(frameCount % 60 == 0) spawnObstacle();
+
+  // Move player smoothly
+  playerCar.position.x += (playerX - playerCar.position.x) * 0.15;
+
+  // Move obstacles
+  obstacles.forEach(function(ob, i){
+    ob.position.z += speed;
+    if(ob.position.z > 8){
+      scene.remove(ob);
+      obstacles.splice(i, 1);
+      score++;
+      speed += 0.005;
+      document.getElementById('score').innerHTML = 'Score: '+score;
+    }
+    // Collision
+    if(Math.abs(ob.position.z - playerCar.position.z) < 2 &&
+       Math.abs(ob.position.x - playerCar.position.x) < 1.5){
+      running = false;
+      document.getElementById('result').innerHTML = '💥 Game Over! Score: '+score;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+  </html>
