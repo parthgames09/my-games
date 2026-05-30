@@ -7,13 +7,6 @@ body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:rela
 
 #space-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
 
-.star{position:absolute;background:white;border-radius:50%;animation:twinkle linear infinite;}
-@keyframes twinkle{
-  0%{opacity:0;transform:scale(0.5);}
-  50%{opacity:1;transform:scale(1.2);}
-  100%{opacity:0;transform:scale(0.5);}
-}
-
 .main-layout{display:flex;gap:15px;align-items:flex-start;}
 .profile-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;width:35%;padding:20px;box-shadow:0 8px 32px rgba(245,158,11,0.1);text-align:center;position:sticky;top:15px;}
 .profile-img{width:90px;height:90px;border-radius:50%;border:4px solid #F59E0B;box-shadow:0 0 25px rgba(245,158,11,0.5);object-fit:cover;margin-bottom:10px;}
@@ -44,12 +37,15 @@ body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:rela
 .cricket{background:linear-gradient(45deg,#11998e,#38ef7d);color:white;}
 .sierra{background:linear-gradient(45deg,#1565C0,#4fc3f7);color:white;}
 .divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,#F59E0B,transparent);margin:8px auto;}
-.footer{color:#666;font-size:11px;margin-top:20px;padding-bottom:15px;text-align:center;}
+
+.footer{margin-top:20px;padding:20px 15px;text-align:center;background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.2);border-radius:20px;}
+.footer p{color:#666;font-size:11px;margin-bottom:8px;}
+.email-link{color:#F59E0B;font-size:13px;text-decoration:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:8px 20px;border-radius:25px;display:inline-block;margin-top:5px;}
+.email-link:hover{background:rgba(245,158,11,0.2);}
 </style>
 </head>
 <body>
 
-<!-- Space Background Canvas -->
 <canvas id="space-bg"></canvas>
 
 <h1 style="color:#F59E0B;font-size:20px;margin-bottom:15px;text-align:center;text-shadow:0 0 15px #F59E0B;">🎮 My Game Zone!</h1>
@@ -131,172 +127,91 @@ body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:rela
 
 </div>
 
-<div class="footer">© 2026 Parth's Game Zone | All Rights Reserved</div>
+<!-- Footer with Email -->
+<div class="footer">
+  <p>© 2026 Parth's Game Zone | All Rights Reserved</p>
+  <p style="color:#aaa;font-size:12px;margin-top:5px;">📩 For any enquiry:</p>
+  <a class="email-link" href="mailto:parthhuu.2009@gmail.com">✉️ parthhuu.2009@gmail.com</a>
+</div>
 
 <script>
-// Space Background
-var canvas = document.getElementById('space-bg');
-var ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+var canvas=document.getElementById('space-bg');
+var ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-// Stars
-var stars = [];
-for(var i=0; i<200; i++){
-  stars.push({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    size: Math.random()*2+0.5,
-    opacity: Math.random(),
-    speed: Math.random()*0.02+0.005
-  });
+var stars=[];
+for(var i=0;i<200;i++){
+  stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+0.5,opacity:Math.random(),speed:Math.random()*0.02+0.005});
 }
 
-// Planets
-var planets = [
-  // Earth
-  {x:canvas.width*0.08, y:canvas.height*0.2, r:45, type:'earth'},
-  // Mars
-  {x:canvas.width*0.92, y:canvas.height*0.15, r:25, type:'mars'},
-  // Saturn
-  {x:canvas.width*0.85, y:canvas.height*0.75, r:30, type:'saturn'},
-  // Moon
-  {x:canvas.width*0.12, y:canvas.height*0.8, r:18, type:'moon'},
-  // Jupiter
-  {x:canvas.width*0.5, y:canvas.height*0.05, r:20, type:'jupiter'},
+var planets=[
+  {x:canvas.width*0.08,y:canvas.height*0.2,r:45,type:'earth'},
+  {x:canvas.width*0.92,y:canvas.height*0.15,r:25,type:'mars'},
+  {x:canvas.width*0.85,y:canvas.height*0.75,r:30,type:'saturn'},
+  {x:canvas.width*0.12,y:canvas.height*0.8,r:18,type:'moon'},
+  {x:canvas.width*0.5,y:canvas.height*0.05,r:20,type:'jupiter'},
 ];
 
 function drawEarth(x,y,r){
-  // Ocean
-  var grad = ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
   grad.addColorStop(0,'#4fc3f7');
   grad.addColorStop(0.5,'#1565C0');
   grad.addColorStop(1,'#0a2a6e');
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=grad;
-  ctx.fill();
-
-  // Continents
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
   ctx.fillStyle='#2e7d32';
   ctx.beginPath();ctx.ellipse(x-r*0.2,y-r*0.1,r*0.3,r*0.4,0.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.ellipse(x+r*0.2,y+r*0.1,r*0.25,r*0.35,0.3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(x-r*0.1,y+r*0.3,r*0.2,r*0.15,0.8,0,Math.PI*2);ctx.fill();
-
-  // Clouds
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.beginPath();ctx.ellipse(x+r*0.1,y-r*0.3,r*0.35,r*0.1,0.2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(x-r*0.2,y+r*0.2,r*0.3,r*0.08,0.5,0,Math.PI*2);ctx.fill();
-
-  // Atmosphere glow
-  ctx.beginPath();
-  ctx.arc(x,y,r+4,0,Math.PI*2);
-  ctx.strokeStyle='rgba(100,180,255,0.3)';
-  ctx.lineWidth=6;
-  ctx.stroke();
+  ctx.beginPath();ctx.arc(x,y,r+4,0,Math.PI*2);
+  ctx.strokeStyle='rgba(100,180,255,0.3)';ctx.lineWidth=6;ctx.stroke();
 }
 
 function drawMars(x,y,r){
-  var grad = ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#ff6b35');
-  grad.addColorStop(0.6,'#c0392b');
-  grad.addColorStop(1,'#7b241c');
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=grad;
-  ctx.fill();
-  // Surface marks
+  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+  grad.addColorStop(0,'#ff6b35');grad.addColorStop(0.6,'#c0392b');grad.addColorStop(1,'#7b241c');
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
   ctx.fillStyle='rgba(0,0,0,0.2)';
   ctx.beginPath();ctx.ellipse(x+r*0.2,y-r*0.1,r*0.2,r*0.15,0.3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(x-r*0.1,y+r*0.2,r*0.15,r*0.1,0.5,0,Math.PI*2);ctx.fill();
 }
 
 function drawSaturn(x,y,r){
-  // Rings behind
-  ctx.beginPath();
-  ctx.ellipse(x,y,r*2.2,r*0.4,0,0,Math.PI*2);
-  ctx.strokeStyle='rgba(210,180,140,0.5)';
-  ctx.lineWidth=8;
-  ctx.stroke();
-
-  // Planet
-  var grad = ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#f5deb3');
-  grad.addColorStop(0.5,'#d4a017');
-  grad.addColorStop(1,'#8b6914');
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=grad;
-  ctx.fill();
-
-  // Rings front
-  ctx.beginPath();
-  ctx.ellipse(x,y+r*0.1,r*2.2,r*0.4,0,0,Math.PI);
-  ctx.strokeStyle='rgba(210,180,140,0.6)';
-  ctx.lineWidth=8;
-  ctx.stroke();
+  ctx.beginPath();ctx.ellipse(x,y,r*2.2,r*0.4,0,0,Math.PI*2);
+  ctx.strokeStyle='rgba(210,180,140,0.5)';ctx.lineWidth=8;ctx.stroke();
+  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+  grad.addColorStop(0,'#f5deb3');grad.addColorStop(0.5,'#d4a017');grad.addColorStop(1,'#8b6914');
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.ellipse(x,y+r*0.1,r*2.2,r*0.4,0,0,Math.PI);
+  ctx.strokeStyle='rgba(210,180,140,0.6)';ctx.lineWidth=8;ctx.stroke();
 }
 
 function drawMoon(x,y,r){
-  var grad = ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#e0e0e0');
-  grad.addColorStop(0.7,'#aaa');
-  grad.addColorStop(1,'#777');
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=grad;
-  ctx.fill();
-  // Craters
+  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+  grad.addColorStop(0,'#e0e0e0');grad.addColorStop(0.7,'#aaa');grad.addColorStop(1,'#777');
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
   ctx.fillStyle='rgba(0,0,0,0.15)';
   ctx.beginPath();ctx.arc(x+r*0.2,y-r*0.2,r*0.2,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(x-r*0.3,y+r*0.1,r*0.15,0,Math.PI*2);ctx.fill();
 }
 
 function drawJupiter(x,y,r){
-  var grad = ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#f5cba7');
-  grad.addColorStop(0.5,'#e67e22');
-  grad.addColorStop(1,'#a04000');
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=grad;
-  ctx.fill();
-  // Bands
-  ctx.fillStyle='rgba(0,0,0,0.15)';
-  ctx.fillRect(x-r,y-r*0.2,r*2,r*0.12);
-  ctx.fillRect(x-r,y+r*0.1,r*2,r*0.1);
-  // Clip to circle
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.clip();
+  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
+  grad.addColorStop(0,'#f5cba7');grad.addColorStop(0.5,'#e67e22');grad.addColorStop(1,'#a04000');
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
 }
 
-var time=0;
 function drawSpace(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // Deep space background
-  var bg = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  bg.addColorStop(0,'#000005');
-  bg.addColorStop(0.5,'#05001a');
-  bg.addColorStop(1,'#000010');
-  ctx.fillStyle=bg;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // Twinkling stars
-  ctx.save();
+  var bg=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+  bg.addColorStop(0,'#000005');bg.addColorStop(0.5,'#05001a');bg.addColorStop(1,'#000010');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
   stars.forEach(function(s){
-    s.opacity += s.speed;
+    s.opacity+=s.speed;
     if(s.opacity>1||s.opacity<0) s.speed*=-1;
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,'+Math.abs(s.opacity)+')';
-    ctx.fill();
+    ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,'+Math.abs(s.opacity)+')';ctx.fill();
   });
-  ctx.restore();
-
-  // Draw planets
-  ctx.save();
   planets.forEach(function(p){
     if(p.type=='earth') drawEarth(p.x,p.y,p.r);
     else if(p.type=='mars') drawMars(p.x,p.y,p.r);
@@ -304,12 +219,8 @@ function drawSpace(){
     else if(p.type=='moon') drawMoon(p.x,p.y,p.r);
     else if(p.type=='jupiter') drawJupiter(p.x,p.y,p.r);
   });
-  ctx.restore();
-
-  time+=0.01;
   requestAnimationFrame(drawSpace);
 }
-
 drawSpace();
 
 function searchGames(){
@@ -318,12 +229,8 @@ function searchGames(){
   var found=0;
   cards.forEach(function(card){
     var name=card.getAttribute('data-name');
-    if(name.includes(input)){
-      card.style.display='block';
-      found++;
-    } else {
-      card.style.display='none';
-    }
+    if(name.includes(input)){card.style.display='block';found++;}
+    else{card.style.display='none';}
   });
   document.getElementById('noResults').style.display=found==0?'block':'none';
 }
