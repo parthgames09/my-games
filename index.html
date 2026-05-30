@@ -1,16 +1,18 @@
 <html>
 <head>
 <style>
-body{margin:0;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);text-align:center;font-family:Arial;color:white;}
-h1{color:#FFD700;font-size:24px;margin:15px 0 5px;text-shadow:0 0 10px gold;}
-p{color:#aaa;font-size:13px;margin:5px;}
-.profile{margin:15px auto;}
-.profile img{width:90px;height:90px;border-radius:50%;border:3px solid gold;object-fit:cover;}
-.card{background:rgba(255,255,255,0.1);border-radius:15px;padding:15px;margin:15px auto;width:80%;border:1px solid rgba(255,255,255,0.2);}
-.btn{padding:12px 25px;font-size:16px;border:none;border-radius:10px;cursor:pointer;margin:8px;width:80%;}
-.car{background:linear-gradient(45deg,#ff4444,#ff6b6b);color:white;}
-.cricket{background:linear-gradient(45deg,#44aa44,#6bcb6b);color:white;}
-.footer{color:#555;font-size:11px;margin-top:20px;padding-bottom:15px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);text-align:center;font-family:Arial;color:white;min-height:100vh;}
+h1{color:#FFD700;font-size:26px;margin:15px 0 5px;text-shadow:0 0 15px gold;}
+p{color:#ccc;font-size:13px;margin:5px;}
+.profile{margin:20px auto;}
+.profile img{width:90px;height:90px;border-radius:50%;border:3px solid #FFD700;box-shadow:0 0 15px gold;object-fit:cover;}
+.badge{background:linear-gradient(45deg,#FFD700,#FFA500);color:black;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;display:inline-block;margin:8px;}
+.card{background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.05));border-radius:20px;padding:18px;margin:15px auto;width:85%;border:1px solid rgba(255,215,0,0.3);box-shadow:0 4px 15px rgba(0,0,0,0.3);}
+.btn{padding:12px 25px;font-size:16px;border:none;border-radius:25px;cursor:pointer;margin:8px;width:80%;font-weight:bold;letter-spacing:1px;}
+.car{background:linear-gradient(45deg,#FF416C,#FF4B2B);color:white;box-shadow:0 4px 15px rgba(255,65,108,0.4);}
+.cricket{background:linear-gradient(45deg,#11998e,#38ef7d);color:white;box-shadow:0 4px 15px rgba(17,153,142,0.4);}
+.footer{color:#666;font-size:11px;margin-top:25px;padding-bottom:20px;}
 </style>
 </head>
 <body>
@@ -20,22 +22,24 @@ p{color:#aaa;font-size:13px;margin:5px;}
 </div>
 
 <h1>🎮 Parth's Game Zone!</h1>
-<p>Welcome to my website!</p>
-<p style="color:gold;">⭐ Made by Parth Prajapati ⭐</p>
+<div class="badge">⭐ Made by Parth Prajapati</div>
+<p>Welcome to my Gaming Website!</p>
 
 <div class="card">
-<h2 style="color:#ff6b6b;">🚗 Car Racing</h2>
-<p style="color:#aaa;">Avoid obstacles & score high!</p>
+<h2 style="color:#FF6B6B;">🚗 Car Racing</h2>
+<p style="color:#aaa;">Avoid obstacles & beat your high score!</p>
+<br>
 <a href="car-game.html"><button class="btn car">▶ Play Car Game</button></a>
 </div>
 
 <div class="card">
-<h2 style="color:#6bcb6b;">🏏 Cricket</h2>
-<p style="color:#aaa;">Hit sixes & score runs!</p>
+<h2 style="color:#38ef7d;">🏏 Cricket</h2>
+<p style="color:#aaa;">Hit sixes & score maximum runs!</p>
+<br>
 <a href="cricket-game.html"><button class="btn cricket">▶ Play Cricket</button></a>
 </div>
 
-<div class="footer">© 2026 Parth's Game Zone</div>
+<div class="footer">© 2026 Parth's Game Zone | All Rights Reserved</div>
 
 </body>
 </html>
