@@ -1,0 +1,306 @@
+<html>
+<head>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#111;font-family:Arial;overflow:hidden;color:white;}
+#canvas{display:block;}
+#hud{position:fixed;top:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 15px;pointer-events:none;}
+#speedometer{background:rgba(0,0,0,0.7);border:2px solid #FFD700;border-radius:10px;padding:8px 15px;font-size:14px;color:#FFD700;}
+#gear{background:rgba(0,0,0,0.7);border:2px solid #FF4444;border-radius:10px;padding:8px 15px;font-size:14px;color:#FF4444;}
+#controls{position:fixed;bottom:10px;left:0;right:0;text-align:center;}
+.btn{padding:8px 14px;font-size:13px;border:none;border-radius:10px;cursor:pointer;margin:3px;}
+#steering{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);}
+#colorPicker{position:fixed;top:60px;right:10px;background:rgba(0,0,0,0.7);border:1px solid #FFD700;border-radius:10px;padding:8px;}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="hud">
+  <div id="speedometer">🚗 Speed: 0 km/h</div>
+  <div id="gear">⚙️ DRIVE</div>
+</div>
+
+<div id="colorPicker">
+  <div style="font-size:11px;color:#FFD700;margin-bottom:5px;">Car Color</div>
+  <button class="btn" onclick="changeColor('#1565C0')" style="background:#1565C0;color:white;">Blue</button>
+  <button class="btn" onclick="changeColor('#FF0000')" style="background:#FF0000;color:white;">Red</button>
+  <button class="btn" onclick="changeColor('#00AA00')" style="background:#00AA00;color:white;">Green</button>
+  <button class="btn" onclick="changeColor('#FFD700')" style="background:#FFD700;color:black;">Gold</button>
+  <button class="btn" onclick="changeColor('#111111')" style="background:#333;color:white;">Black</button>
+</div>
+
+<div id="steering">
+  <button class="btn" onclick="turnLeft()" style="background:#FFD700;color:black;font-size:20px;">↺</button>
+  <button class="btn" onclick="toggleNight()" style="background:#333;color:white;">🌙</button>
+  <button class="btn" onclick="turnRight()" style="background:#FFD700;color:black;font-size:20px;">↻</button>
+</div>
+
+<div id="controls">
+  <button class="btn" onclick="setGear('R')" style="background:#FF4444;color:white;">⬆️ REV</button>
+  <button class="btn" onclick="accelerate()" style="background:lime;color:black;font-size:18px;">🚗 GO</button>
+  <button class="btn" onclick="brakeFunc()" style="background:#FF4444;color:white;">🛑 BRAKE</button>
+  <button class="btn" onclick="setGear('D')" style="background:#4444FF;color:white;">⬇️ DRV</button>
+</div>
+
+<script>
+var canvas=document.getElementById('canvas');
+var ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+var W=canvas.width,H=canvas.height;
+
+var carX=W/2,carY=H*0.75;
+var speed=0,maxSpeed=120,angle=0;
+var gear='D';
+var nightMode=false;
+var carColor='#1565C0';
+var obstacles=[];
+var frameCount=0;
+var roadOffset=0;
+var lines=[];
+for(var i=0;i<15;i++) lines.push({y:i*(H/8)});
+
+function changeColor(c){ carColor=c; }
+function turnLeft(){ angle-=5; }
+function turnRight(){ angle+=5; }
+function toggleNight(){ nightMode=!nightMode; }
+
+function setGear(g){
+  gear=g;
+  document.getElementById('gear').innerHTML='⚙️ '+(g=='R'?'REVERSE':'DRIVE');
+  document.getElementById('gear').style.color=g=='R'?'#FF4444':'#44FF44';
+}
+
+function accelerate(){
+  if(gear=='D' && speed<maxSpeed) speed+=8;
+  if(gear=='R' && speed>-30) speed-=8;
+}
+
+function brakeFunc(){
+  if(speed>0) speed-=15;
+  else if(speed<0) speed+=15;
+  if(Math.abs(speed)<5) speed=0;
+}
+
+// Spawn obstacles
+function spawnObstacle(){
+  var lanes=[W*0.25,W*0.5,W*0.75];
+  var colors=['#0044ff','#00aa00','#ff6600','#aa00aa'];
+  obstacles.push({
+    x:lanes[Math.floor(Math.random()*3)],
+    y:H*0.4,
+    color:colors[Math.floor(Math.random()*4)]
+  });
+}
+
+function drawMountains(){
+  // Background mountains
+  ctx.fillStyle=nightMode?'#1a1a2e':'#4a7a4a';
+  ctx.beginPath();
+  ctx.moveTo(0,H*0.42);
+  ctx.lineTo(W*0.1,H*0.15);
+  ctx.lineTo(W*0.25,H*0.35);
+  ctx.lineTo(W*0.4,H*0.1);
+  ctx.lineTo(W*0.55,H*0.3);
+  ctx.lineTo(W*0.7,H*0.08);
+  ctx.lineTo(W*0.85,H*0.25);
+  ctx.lineTo(W,H*0.2);
+  ctx.lineTo(W,H*0.42);
+  ctx.fill();
+
+  // Snow on mountains
+  ctx.fillStyle=nightMode?'#aaaaaa':'white';
+  ctx.beginPath();
+  ctx.moveTo(W*0.37,H*0.15);
+  ctx.lineTo(W*0.4,H*0.1);
+  ctx.lineTo(W*0.43,H*0.15);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(W*0.67,H*0.13);
+  ctx.lineTo(W*0.7,H*0.08);
+  ctx.lineTo(W*0.73,H*0.13);
+  ctx.fill();
+}
+
+function drawSierra(x,y,w,h,color,isPlayer){
+  var scale=(y-H*0.4)/(H-H*0.4);
+  if(scale<0.1) return;
+
+  ctx.fillStyle='rgba(0,0,0,0.2)';
+  ctx.beginPath();
+  ctx.ellipse(x,y+h*0.65,w*0.45,h*0.07,0,0,Math.PI*2);
+  ctx.fill();
+
+  // Body
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.roundRect(x-w/2,y+h*0.2,w,h*0.55,6);
+  ctx.fill();
+
+  // Roof
+  ctx.beginPath();
+  ctx.roundRect(x-w*0.4,y,w*0.8,h*0.25,5);
+  ctx.fill();
+
+  // Windshield
+  ctx.fillStyle='rgba(150,230,255,0.8)';
+  ctx.beginPath();
+  ctx.roundRect(x-w*0.3,y+h*0.03,w*0.6,h*0.18,3);
+  ctx.fill();
+
+  // Grille
+  ctx.fillStyle='#888';
+  ctx.beginPath();
+  ctx.roundRect(x-w*0.22,y+h*0.6,w*0.44,h*0.1,2);
+  ctx.fill();
+
+  // TATA front
+  ctx.fillStyle='white';
+  ctx.font='bold '+(w*0.14)+'px Arial';
+  ctx.textAlign='center';
+  ctx.fillText('TATA',x,y+h*0.68);
+
+  // TATA back (peeche)
+  if(isPlayer){
+    ctx.fillStyle='white';
+    ctx.font='bold '+(w*0.12)+'px Arial';
+    ctx.fillText('TATA',x,y+h*0.28);
+    ctx.fillStyle='#FFD700';
+    ctx.font='bold '+(w*0.08)+'px Arial';
+    ctx.fillText('SIERRA',x,y+h*0.35);
+  }
+
+  // Wheels
+  ctx.fillStyle='#111';
+  [[x-w*0.38,y+h*0.68],[x+w*0.38,y+h*0.68],[x-w*0.38,y+h*0.28],[x+w*0.38,y+h*0.28]].forEach(function(p){
+    ctx.beginPath();ctx.ellipse(p[0],p[1],w*0.13,h*0.09,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#777';
+    ctx.beginPath();ctx.ellipse(p[0],p[1],w*0.07,h*0.05,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#111';
+  });
+
+  // Headlights
+  if(isPlayer){
+    ctx.fillStyle=nightMode?'rgba(255,255,150,0.9)':'#FFFF00';
+    ctx.beginPath();ctx.ellipse(x-w*0.28,y+h*0.72,w*0.09,h*0.05,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(x+w*0.28,y+h*0.72,w*0.09,h*0.05,0,0,Math.PI*2);ctx.fill();
+    if(nightMode){
+      ctx.fillStyle='rgba(255,255,100,0.1)';
+      ctx.beginPath();ctx.ellipse(x,y+h*0.9,w*0.8,H*0.2,0,0,Math.PI*2);ctx.fill();
+    }
+  } else {
+    ctx.fillStyle='#FF4444';
+    ctx.beginPath();ctx.ellipse(x-w*0.28,y+h*0.72,w*0.09,h*0.05,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(x+w*0.28,y+h*0.72,w*0.09,h*0.05,0,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawSpeedometer(){
+  document.getElementById('speedometer').innerHTML='🚗 Speed: '+Math.abs(Math.round(speed))+' km/h';
+}
+
+function gameLoop(){
+  ctx.clearRect(0,0,W,H);
+
+  // Sky
+  var sky=ctx.createLinearGradient(0,0,0,H*0.42);
+  if(nightMode){
+    sky.addColorStop(0,'#000010');
+    sky.addColorStop(1,'#0a0a2e');
+  } else {
+    sky.addColorStop(0,'#87CEEB');
+    sky.addColorStop(1,'#b0e0ff');
+  }
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,W,H*0.42);
+
+  // Stars at night
+  if(nightMode){
+    ctx.fillStyle='white';
+    for(var i=0;i<40;i++){
+      ctx.beginPath();
+      ctx.arc((i*137)%W,(i*97)%( H*0.35),1,0,Math.PI*2);
+      ctx.fill();
+    }
+    // Moon
+    ctx.fillStyle='#FFFACD';
+    ctx.beginPath();
+    ctx.arc(W*0.85,H*0.1,20,0,Math.PI*2);
+    ctx.fill();
+  } else {
+    // Sun
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath();
+    ctx.arc(W*0.85,H*0.1,25,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  drawMountains();
+
+  // Ground
+  var ground=ctx.createLinearGradient(0,H*0.42,0,H);
+  ground.addColorStop(0,nightMode?'#111':'#1a1a1a');
+  ground.addColorStop(1,nightMode?'#222':'#2a2a2a');
+  ctx.fillStyle=ground;
+  ctx.fillRect(0,H*0.42,W,H*0.58);
+
+  // Road
+  ctx.fillStyle=nightMode?'#1a1a1a':'#222';
+  ctx.beginPath();
+  ctx.moveTo(W*0.28,H*0.42);
+  ctx.lineTo(W*0.72,H*0.42);
+  ctx.lineTo(W,H);
+  ctx.lineTo(0,H);
+  ctx.fill();
+
+  // Road borders
+  ctx.strokeStyle='rgba(255,200,0,0.8)';
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(W*0.28,H*0.42);ctx.lineTo(0,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W*0.72,H*0.42);ctx.lineTo(W,H);ctx.stroke();
+
+  // Road lines
+  roadOffset=(roadOffset+Math.abs(speed)*0.05)%( H/8);
+  lines.forEach(function(l,i){
+    var y=(i*(H/8)+roadOffset)%(H-H*0.42)+H*0.42;
+    var progress=(y-H*0.42)/(H-H*0.42);
+    var lw=W*0.4*progress;
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.fillRect(W/2-lw*0.02,y,lw*0.04,12*progress);
+  });
+
+  // Spawn
+  frameCount++;
+  if(frameCount%100==0 && Math.abs(speed)>5) spawnObstacle();
+
+  // Obstacles
+  obstacles.forEach(function(ob,i){
+    ob.y+=Math.abs(speed)*0.03;
+    var size=(ob.y-H*0.4)/(H-H*0.4);
+    if(size>0) drawSierra(ob.x,ob.y,65*size,95*size,ob.color,false);
+
+    if(ob.y>H*0.75 && Math.abs(ob.x-carX)<40){
+      speed=0;
+      document.getElementById('speedometer').innerHTML='💥 CRASH!';
+    }
+
+    if(ob.y>H) obstacles.splice(i,1);
+  });
+
+  // Player car
+  drawSierra(carX,carY,80,115,carColor,true);
+
+  // Speed decrease naturally
+  if(speed>0) speed-=1;
+  else if(speed<0) speed+=1;
+
+  drawSpeedometer();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+    </html>
