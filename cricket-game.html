@@ -1,0 +1,206 @@
+<html>
+<head>
+<style>
+body{margin:0;background:#1a1a2e;text-align:center;font-family:Arial;color:white;}
+h2{color:#FFD700;margin:10px;}
+#info{font-size:14px;color:#aaa;margin:5px;}
+#result{font-size:18px;font-weight:bold;margin:5px;min-height:25px;}
+.btn{padding:10px 20px;font-size:16px;border:none;border-radius:8px;cursor:pointer;margin:5px;}
+</style>
+</head>
+<body>
+
+<h2>🏏 Cricket Game!</h2>
+<div id="info">Runs: 0 | Balls: 6 | Wickets: 3</div>
+
+<canvas id="game" width="300" height="300" style="background:#2d5a1b;border:2px solid gold;border-radius:10px;"></canvas>
+
+<div id="result"></div>
+
+<br>
+<button class="btn" onclick="swing()" style="background:#FFD700;color:black;font-size:20px;">🏏 HIT!</button>
+<button class="btn" onclick="startGame()" style="background:#4CAF50;color:white;">▶ START</button>
+
+<script>
+var canvas=document.getElementById('game');
+var ctx=canvas.getContext('2d');
+var runs=0,balls=6,wickets=3,running=false;
+var ballX=150,ballY=20,ballDX=1.5,ballDY=2;
+var swinging=false;
+var batX=150;
+var particles=[];
+
+function swing(){
+  if(!running) return;
+  swinging=true;
+  setTimeout(function(){swinging=false;},400);
+}
+
+function startGame(){
+  runs=0;balls=6;wickets=3;running=true;
+  ballX=150;ballY=20;ballDX=1.5;ballDY=2;
+  particles=[];
+  document.getElementById('result').innerHTML='';
+  updateInfo();
+  gameLoop();
+}
+
+function updateInfo(){
+  document.getElementById('info').innerHTML='Runs: '+runs+' | Balls: '+balls+' | Wickets: '+wickets;
+}
+
+function addParticles(x,y,color){
+  for(var i=0;i<10;i++){
+    particles.push({
+      x:x,y:y,
+      dx:(Math.random()-0.5)*4,
+      dy:(Math.random()-0.5)*4,
+      life:30,color:color
+    });
+  }
+}
+
+function drawField(){
+  // Ground
+  ctx.fillStyle='#2d5a1b';
+  ctx.fillRect(0,0,300,300);
+  
+  // Pitch
+  ctx.fillStyle='#c8a96e';
+  ctx.fillRect(125,40,50,230);
+  
+  // Crease lines
+  ctx.strokeStyle='white';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(110,240);
+  ctx.lineTo(190,240);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(110,60);
+  ctx.lineTo(190,60);
+  ctx.stroke();
+
+  // Stumps
+  ctx.fillStyle='#F5DEB3';
+  ctx.fillRect(135,245,5,30);
+  ctx.fillRect(147,245,5,30);
+  ctx.fillRect(159,245,5,30);
+  
+  // Bails
+  ctx.fillStyle='#F5DEB3';
+  ctx.fillRect(133,243,14,3);
+  ctx.fillRect(145,243,16,3);
+
+  // Crowd dots
+  for(var i=0;i<30;i++){
+    ctx.beginPath();
+    ctx.arc(10+i*10, 290, 4, 0, Math.PI*2);
+    ctx.fillStyle=i%3==0?'red':i%3==1?'blue':'yellow';
+    ctx.fill();
+  }
+}
+
+function drawBall(){
+  ctx.beginPath();
+  ctx.arc(ballX,ballY,8,0,Math.PI*2);
+  ctx.fillStyle='#cc0000';
+  ctx.fill();
+  ctx.strokeStyle='white';
+  ctx.lineWidth=1;
+  ctx.stroke();
+  // Seam
+  ctx.beginPath();
+  ctx.arc(ballX,ballY,5,0,Math.PI);
+  ctx.strokeStyle='white';
+  ctx.lineWidth=0.5;
+  ctx.stroke();
+}
+
+function drawBat(){
+  ctx.save();
+  ctx.translate(batX,262);
+  if(swinging){
+    ctx.rotate(-0.5);
+    ctx.fillStyle='#8B4513';
+    ctx.fillRect(-35,-5,70,10);
+    ctx.fillStyle='#DEB887';
+    ctx.fillRect(-30,-3,60,6);
+  } else {
+    ctx.fillStyle='#8B4513';
+    ctx.fillRect(-3,-20,6,25);
+    ctx.fillStyle='#DEB887';
+    ctx.fillRect(-2,-18,4,22);
+  }
+  ctx.restore();
+}
+
+function drawParticles(){
+  particles.forEach(function(p,i){
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fillStyle=p.color;
+    ctx.fill();
+    p.x+=p.dx;
+    p.y+=p.dy;
+    p.life--;
+  });
+  particles=particles.filter(function(p){return p.life>0;});
+}
+
+function gameLoop(){
+  if(!running) return;
+  ctx.clearRect(0,0,300,300);
+  drawField();
+  drawParticles();
+  drawBall();
+  drawBat();
+
+  ballX+=ballDX;
+  ballY+=ballDY;
+
+  if(ballX<8||ballX>292) ballDX*=-1;
+  if(ballY<8) ballDY*=-1;
+
+  // Ball hits bat
+  if(ballY>250&&ballY<272&&ballX>batX-35&&ballX<batX+35&&swinging){
+    ballDY=-3.5;
+    ballDX=(Math.random()-0.5)*4;
+    balls--;
+    var r=Math.floor(Math.random()*7);
+    runs+=r;
+    addParticles(ballX,ballY,r>=4?'gold':'lime');
+    updateInfo();
+    if(r==6) document.getElementById('result').innerHTML='🎉 SIX! +6';
+    else if(r==4) document.getElementById('result').innerHTML='🏏 FOUR! +4';
+    else if(r==0) document.getElementById('result').innerHTML='😅 Dot ball!';
+    else document.getElementById('result').innerHTML='✅ '+r+' runs!';
+  }
+
+  // Ball hits stumps
+  if(ballY>245&&ballY<275&&ballX>133&&ballX<166&&!swinging){
+    wickets--;
+    addParticles(150,255,'red');
+    updateInfo();
+    if(wickets<=0){
+      running=false;
+      document.getElementById('result').innerHTML='💥 ALL OUT! Total: '+runs+' runs!';
+      return;
+    }
+    document.getElementById('result').innerHTML='😱 WICKET! '+wickets+' left!';
+    ballX=150;ballY=20;ballDX=1.5;ballDY=2;
+  }
+
+  if(balls<=0){
+    running=false;
+    document.getElementById('result').innerHTML='🏁 OVER! Total: '+runs+' runs!';
+    return;
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+</script>
+
+</body>
+  </html>
