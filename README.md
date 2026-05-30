@@ -1,1 +1,35 @@
-# my-games
+<html>
+<head>
+<style>
+  body{margin:0; background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); text-align:center; font-family:Arial;}
+  h1{color:#FFD700; font-size:28px; margin:20px 0 5px; text-shadow:0 0 10px gold;}
+  p{color:#aaa; font-size:13px; margin:5px;}
+  .card{background:rgba(255,255,255,0.1); border-radius:15px; padding:15px; margin:15px auto; width:80%; border:1px solid rgba(255,255,255,0.2);}
+  .btn{padding:12px 25px; font-size:16px; border:none; border-radius:10px; cursor:pointer; margin:8px; width:80%;}
+  .car{background:linear-gradient(45deg,#ff4444,#ff6b6b); color:white;}
+  .cricket{background:linear-gradient(45deg,#44aa44,#6bcb6b); color:white;}
+  .footer{color:#555; font-size:11px; margin-top:20px;}
+</style>
+</head>
+<body>
+
+<h1>🎮 Parth's Game Zone!</h1>
+<p>Welcome to my website!</p>
+<p style="color:gold;">⭐ Made by Parth Prajapati ⭐</p>
+
+<div class="card">
+  <h2 style="color:#ff6b6b;">🚗 Car Racing</h2>
+  <p style="color:#aaa;">Avoid obstacles & score high!</p>
+  <a href="car-game.html"><button class="btn car">▶ Play Car Game</button></a>
+</div>
+
+<div class="card">
+  <h2 style="color:#6bcb6b;">🏏 Cricket</h2>
+  <p style="color:#aaa;">Hit sixes & score runs!</p>
+  <a href="cricket-game.html"><button class="btn cricket">▶ Play Cricket</button></a>
+</div>
+
+<div class="footer">© 2026 Parth's Game Zone</div>
+
+</body>
+</html>
