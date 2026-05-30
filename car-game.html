@@ -1,0 +1,89 @@
+<html>
+<body style="background:black; text-align:center; margin:0; padding:0;">
+
+<h3 style="color:yellow; margin:3px;">🚗 Racing!</h3>
+
+<canvas id="game" width="100" height="100" style="background:#333; border:1px solid yellow;"></canvas>
+
+<h3 id="score" style="color:yellow; margin:2px; font-size:14px;">Score: 0</h3>
+<h3 id="gameover" style="color:red; margin:2px; font-size:12px;"></h3>
+
+<button onclick="moveCar(-10)" style="padding:5px 10px; font-size:12px; background:yellow; border:none; margin:2px;">◀</button>
+<button onclick="startGame()" style="padding:5px 8px; font-size:11px; background:lime; border:none; margin:2px;">GO</button>
+<button onclick="moveCar(10)" style="padding:5px 10px; font-size:12px; background:yellow; border:none; margin:2px;">▶</button>
+
+<script>
+var canvas=document.getElementById('game');
+var ctx=canvas.getContext('2d');
+var car={x:40,y:72,width:20,height:26};
+var obstacles=[];
+var score=0;
+var running=false;
+var speed=1.2;
+
+function moveCar(dir){
+  if(car.x+dir>5&&car.x+dir<75) car.x+=dir;
+}
+
+function startGame(){
+  car.x=40;
+  obstacles=[];
+  score=0;
+  speed=1.2;
+  running=true;
+  document.getElementById('gameover').innerHTML='';
+  gameLoop();
+}
+
+function drawCar(x,y,col){
+  ctx.fillStyle=col;
+  ctx.fillRect(x+3,y,14,26);
+  ctx.fillRect(x,y+6,20,14);
+  ctx.fillStyle='lightblue';
+  ctx.fillRect(x+4,y+2,12,8);
+  ctx.fillStyle='#111';
+  ctx.fillRect(x,y+5,5,8);
+  ctx.fillRect(x+15,y+5,5,8);
+  ctx.fillRect(x,y+17,5,8);
+  ctx.fillRect(x+15,y+17,5,8);
+  ctx.fillStyle='yellow';
+  ctx.fillRect(x+3,y+22,5,3);
+  ctx.fillRect(x+12,y+22,5,3);
+}
+
+function gameLoop(){
+  if(!running) return;
+  ctx.clearRect(0,0,100,100);
+  ctx.fillStyle='#444';
+  ctx.fillRect(0,0,100,100);
+  ctx.fillStyle='white';
+  ctx.fillRect(8,0,2,100);
+  ctx.fillRect(90,0,2,100);
+  ctx.fillStyle='yellow';
+  ctx.fillRect(49,0,2,100);
+  drawCar(car.x,car.y,'red');
+
+  if(Math.random()<0.015){
+    obstacles.push({x:10+Math.floor(Math.random()*65),y:-26});
+  }
+
+  obstacles.forEach(function(ob,i){
+    ob.y+=speed;
+    drawCar(ob.x,ob.y,'blue');
+    if(ob.x<car.x+20&&ob.x+20>car.x&&ob.y<car.y+26&&ob.y+26>car.y){
+      running=false;
+      document.getElementById('gameover').innerHTML='💥 Game Over! Score: '+score;
+    }
+    if(ob.y>100){
+      obstacles.splice(i,1);
+      score++;
+      speed+=0.05;
+      document.getElementById('score').innerHTML='Score: '+score;
+    }
+  });
+  requestAnimationFrame(gameLoop);
+}
+</script>
+
+</body>
+</html>
