@@ -1,5 +1,255 @@
-<html>
 <head>
+<style>
+*{margin:0;padding:0;}
+body{overflow:hidden;background:black;}
+canvas{width:100%;height:100%;}
+#ui{position:fixed;top:10px;left:0;right:0;text-align:center;color:white;font-family:Arial;pointer-events:none;}
+#score{font-size:20px;color:#FFD700;text-shadow:0 0 10px gold;}
+#result{font-size:18px;color:red;font-weight:bold;}
+#controls{position:fixed;bottom:20px;left:0;right:0;text-align:center;}
+.btn{padding:12px 25px;font-size:18px;border:none;border-radius:10px;cursor:pointer;margin:5px;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div id="score">🏆 Score: 0</div>
+  <div id="result"></div>
+</div>
+
+<canvas id="renderCanvas"></canvas>
+
+<div id="controls">
+  <button class="btn" onclick="moveLeft()" style="background:#FFD700;color:black;">◀</button>
+  <button class="btn" onclick="startGame()" style="background:lime;color:black;">START</button>
+  <button class="btn" onclick="moveRight()" style="background:#FFD700;color:black;">▶</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babylonjs/6.26.0/babylon.js"></script>
+<script>
+var canvas = document.getElementById('renderCanvas');
+var engine = new BABYLON.Engine(canvas, true);
+
+var score = 0;
+var speed = 0.15;
+var running = false;
+var playerLane = 0;
+var targetX = 0;
+var obstacles = [];
+var frameCount = 0;
+
+var createScene = function(){
+  var scene = new BABYLON.Scene(engine);
+  scene.clearColor = new BABYLON.Color4(0.05, 0.05, 0.15, 1);
+
+  // Camera
+  var camera = new BABYLON.FreeCamera('cam', new BABYLON.Vector3(0, 5, 10), scene);
+  camera.setTarget(new BABYLON.Vector3(0, 0, 0));
+
+  // Lights
+  var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
+  light.intensity = 0.8;
+  var dirLight = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-1, -2, -1), scene);
+  dirLight.intensity = 0.5;
+
+  // Road
+  var road = BABYLON.MeshBuilder.CreateBox('road', {width:9, height:0.1, depth:200}, scene);
+  road.position.y = -0.05;
+  road.position.z = -90;
+  var roadMat = new BABYLON.StandardMaterial('roadMat', scene);
+  roadMat.diffuseColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+  road.material = roadMat;
+
+  // Road lines
+  for(var i=0; i<20; i++){
+    var line = BABYLON.MeshBuilder.CreateBox('line'+i, {width:0.1, height:0.11, depth:3}, scene);
+    line.position.set(0, 0, -i*10);
+    var lineMat = new BABYLON.StandardMaterial('lineMat'+i, scene);
+    lineMat.diffuseColor = new BABYLON.Color3(1, 1, 0);
+    line.material = lineMat;
+  }
+
+  // Lane dividers
+  [-3, 3].forEach(function(x){
+    var div = BABYLON.MeshBuilder.CreateBox('div', {width:0.15, height:0.12, depth:200}, scene);
+    div.position.set(x, 0, -90);
+    var divMat = new BABYLON.StandardMaterial('divMat', scene);
+    divMat.diffuseColor = new BABYLON.Color3(1, 0.8, 0);
+    div.material = divMat;
+  });
+
+  // Player Car
+  var playerCar = new BABYLON.TransformNode('playerCar', scene);
+
+  // Car body
+  var body = BABYLON.MeshBuilder.CreateBox('body', {width:1.5, height:0.6, depth:3}, scene);
+  body.parent = playerCar;
+  body.position.y = 0.5;
+  var bodyMat = new BABYLON.StandardMaterial('bodyMat', scene);
+  bodyMat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+  body.material = bodyMat;
+
+  // Car top
+  var top = BABYLON.MeshBuilder.CreateBox('top', {width:1.2, height:0.5, depth:1.8}, scene);
+  top.parent = playerCar;
+  top.position.set(0, 1.05, 0);
+  var topMat = new BABYLON.StandardMaterial('topMat', scene);
+  topMat.diffuseColor = new BABYLON.Color3(0.8, 0, 0);
+  top.material = topMat;
+
+  // Windshield
+  var wind = BABYLON.MeshBuilder.CreateBox('wind', {width:1.1, height:0.4, depth:0.1}, scene);
+  wind.parent = playerCar;
+  wind.position.set(0, 1, 0.9);
+  var windMat = new BABYLON.StandardMaterial('windMat', scene);
+  windMat.diffuseColor = new BABYLON.Color3(0.5, 0.8, 1);
+  windMat.alpha = 0.7;
+  wind.material = windMat;
+
+  // Wheels
+  var wheelPos = [[-0.9,0.3,1],[0.9,0.3,1],[-0.9,0.3,-1],[0.9,0.3,-1]];
+  wheelPos.forEach(function(p, i){
+    var wheel = BABYLON.MeshBuilder.CreateCylinder('wheel'+i, {diameter:0.6, height:0.2, tessellation:12}, scene);
+    wheel.parent = playerCar;
+    wheel.rotation.z = Math.PI/2;
+    wheel.position.set(p[0], p[1], p[2]);
+    var wMat = new BABYLON.StandardMaterial('wMat'+i, scene);
+    wMat.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+    wheel.material = wMat;
+  });
+
+  playerCar.position.set(0, 0, 5);
+
+  // Mountains background
+  [-15, -5, 5, 15].forEach(function(x, i){
+    var mountain = BABYLON.MeshBuilder.CreateCylinder('mount'+i, {
+      diameterTop:0, diameterBottom:8, height:12, tessellation:4
+    }, scene);
+    mountain.position.set(x*3, -2, -50);
+    var mMat = new BABYLON.StandardMaterial('mMat'+i, scene);
+    mMat.diffuseColor = new BABYLON.Color3(0.2+i*0.05, 0.3, 0.2);
+    mountain.material = mMat;
+  });
+
+  // Sky
+  var skybox = BABYLON.MeshBuilder.CreateBox('sky', {size:300}, scene);
+  var skyMat = new BABYLON.StandardMaterial('skyMat', scene);
+  skyMat.backFaceCulling = false;
+  skyMat.diffuseColor = new BABYLON.Color3(0.05, 0.05, 0.2);
+  skyMat.emissiveColor = new BABYLON.Color3(0.05, 0.05, 0.2);
+  skybox.material = skyMat;
+
+  // Headlights
+  var headlight1 = new BABYLON.SpotLight('head1', new BABYLON.Vector3(-0.5, 0.8, 4), new BABYLON.Vector3(0,0,-1), Math.PI/4, 2, scene);
+  headlight1.diffuse = new BABYLON.Color3(1, 1, 0.8);
+  headlight1.intensity = 0.8;
+  var headlight2 = new BABYLON.SpotLight('head2', new BABYLON.Vector3(0.5, 0.8, 4), new BABYLON.Vector3(0,0,-1), Math.PI/4, 2, scene);
+  headlight2.diffuse = new BABYLON.Color3(1, 1, 0.8);
+  headlight2.intensity = 0.8;
+
+  function makeObstacleCar(lane){
+    var ob = new BABYLON.TransformNode('ob'+frameCount, scene);
+    var obBody = BABYLON.MeshBuilder.CreateBox('obBody', {width:1.5, height:0.6, depth:3}, scene);
+    obBody.parent = ob;
+    obBody.position.y = 0.5;
+    var obMat = new BABYLON.StandardMaterial('obMat', scene);
+    var colors = [
+      new BABYLON.Color3(0,0,1),
+      new BABYLON.Color3(0,0.6,0),
+      new BABYLON.Color3(1,0.5,0),
+      new BABYLON.Color3(0.5,0,0.5)
+    ];
+    obMat.diffuseColor = colors[Math.floor(Math.random()*colors.length)];
+    obBody.material = obMat;
+
+    var obTop = BABYLON.MeshBuilder.CreateBox('obTop', {width:1.2, height:0.5, depth:1.8}, scene);
+    obTop.parent = ob;
+    obTop.position.set(0, 1.05, 0);
+    obTop.material = obMat;
+
+    var lanes = [-3, 0, 3];
+    ob.position.set(lanes[lane], 0, -30);
+    obstacles.push(ob);
+  }
+
+  scene.registerBeforeRender(function(){
+    if(!running) return;
+
+    frameCount++;
+
+    // Smooth lane change
+    playerCar.position.x += (targetX - playerCar.position.x) * 0.15;
+
+    // Spawn obstacles
+    if(frameCount % 60 == 0){
+      makeObstacleCar(Math.floor(Math.random()*3));
+    }
+
+    // Move obstacles
+    obstacles.forEach(function(ob, i){
+      ob.position.z += speed;
+
+      // Collision
+      if(Math.abs(ob.position.z - playerCar.position.z) < 2.5 &&
+         Math.abs(ob.position.x - playerCar.position.x) < 2){
+        running = false;
+        document.getElementById('result').innerHTML = '💥 Game Over! Score: '+score;
+        obstacles.forEach(function(o){ o.dispose(); });
+        obstacles = [];
+      }
+
+      if(ob.position.z > 8){
+        ob.dispose();
+        obstacles.splice(i, 1);
+        score++;
+        speed += 0.005;
+        document.getElementById('score').innerHTML = '🏆 Score: '+score;
+      }
+    });
+  });
+
+  return scene;
+};
+
+var scene = createScene();
+
+engine.runRenderLoop(function(){
+  scene.render();
+});
+
+window.addEventListener('resize', function(){
+  engine.resize();
+});
+
+function moveLeft(){
+  if(playerLane > 0){
+    playerLane--;
+    targetX = [-3,0,3][playerLane];
+  }
+}
+
+function moveRight(){
+  if(playerLane < 2){
+    playerLane++;
+    targetX = [-3,0,3][playerLane];
+  }
+}
+
+function startGame(){
+  score = 0;
+  speed = 0.15;
+  running = true;
+  playerLane = 1;
+  targetX = 0;
+  frameCount = 0;
+  obstacles.forEach(function(o){ o.dispose(); });
+  obstacles = [];
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('score').innerHTML = '🏆 Score: 0';
+}
+</script>
+</body>
+</html><head>
 <style>
 *{margin:0;padding:0;}
 body{overflow:hidden;background:black;}
