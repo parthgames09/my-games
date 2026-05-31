@@ -8,12 +8,12 @@ body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:rela
 canvas{position:fixed;top:0;left:0;z-index:-1;}
 
 .hamburger{position:fixed;top:15px;left:15px;z-index:1000;cursor:pointer;background:rgba(10,10,30,0.85);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:10px;backdrop-filter:blur(10px);}
-.hamburger div{width:25px;height:3px;background:#F59E0B;margin:5px 0;border-radius:3px;transition:all 0.3s;}
+.hamburger div{width:25px;height:3px;background:#F59E0B;margin:5px 0;border-radius:3px;}
 
 .side-menu{position:fixed;top:0;left:-280px;width:270px;height:100vh;background:rgba(5,5,20,0.97);backdrop-filter:blur(20px);border-right:1px solid rgba(245,158,11,0.3);z-index:999;transition:all 0.3s;padding:70px 20px 20px;}
 .side-menu.open{left:0;}
-.side-menu-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:20px;text-align:center;text-shadow:0 0 10px #F59E0B;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:15px;}
-.side-item{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;transition:all 0.2s;border-radius:10px;margin-bottom:5px;}
+.side-menu-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:20px;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:15px;}
+.side-item{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid rgba(255,255,255,0.05);text-decoration:none;transition:all 0.2s;border-radius:10px;margin-bottom:5px;}
 .side-item:hover{background:rgba(245,158,11,0.1);padding-left:20px;}
 .side-icon{font-size:20px;}
 .side-text{color:#F59E0B;font-size:14px;font-weight:500;}
@@ -56,7 +56,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 
 .menu-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
 .menu-title{color:#FFD700;font-size:14px;font-weight:bold;margin-bottom:10px;text-align:center;}
-.menu-item{display:flex;align-items:center;justify-content:space-between;padding:12px 5px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.2s;text-decoration:none;}
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:12px 5px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:all 0.2s;}
 .menu-item:last-child{border-bottom:none;}
 .menu-item:hover{padding-left:10px;}
 .menu-left{display:flex;align-items:center;gap:10px;}
@@ -65,7 +65,31 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 .menu-desc{color:#666;font-size:10px;margin-top:2px;}
 .menu-arrow{color:#666;font-size:16px;}
 
-.footer{color:#444;font-size:11px;margin-top:20px;padding-bottom:15px;text-align:center;}
+.footer{color:#444;font-size:11px;margin-top:20px;padding-bottom:80px;text-align:center;}
+
+/* Gift Chatbot */
+.gift-btn{position:fixed;bottom:25px;right:25px;z-index:1000;font-size:40px;cursor:pointer;animation:bounce 1.5s infinite;filter:drop-shadow(0 0 10px gold);}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+.gift-box{position:fixed;bottom:90px;right:20px;z-index:1000;width:300px;background:rgba(5,5,20,0.97);border:2px solid #FFD700;border-radius:20px;padding:15px;box-shadow:0 0 30px rgba(245,158,11,0.3);display:none;backdrop-filter:blur(20px);}
+.gift-box.open{display:block;animation:giftOpen 0.4s ease;}
+@keyframes giftOpen{0%{transform:scale(0);opacity:0;}50%{transform:scale(1.05);}100%{transform:scale(1);opacity:1;}}
+
+.gift-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:8px;}
+.gift-title{color:#FFD700;font-size:14px;font-weight:bold;}
+.gift-close{color:#aaa;cursor:pointer;font-size:18px;}
+
+.gift-messages{height:180px;overflow-y:auto;margin-bottom:10px;padding:5px;}
+.gift-messages::-webkit-scrollbar{width:3px;}
+.gift-messages::-webkit-scrollbar-thumb{background:#FFD700;border-radius:3px;}
+
+.msg-bot{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:15px 15px 15px 0;padding:8px 12px;margin:5px 0;color:#FFD700;font-size:12px;max-width:85%;line-height:1.5;}
+.msg-user{background:rgba(255,255,255,0.08);border-radius:15px 15px 0 15px;padding:8px 12px;margin:5px 0 5px auto;color:white;font-size:12px;max-width:85%;text-align:right;line-height:1.5;}
+
+.gift-input-area{display:flex;gap:8px;}
+.gift-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:8px 12px;color:#FFD700;font-size:12px;outline:none;}
+.gift-input::placeholder{color:#555;}
+.gift-send{background:linear-gradient(45deg,#F59E0B,#FFD700);border:none;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
 </style>
 </head>
 <body>
@@ -73,9 +97,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 <canvas id="space-bg"></canvas>
 
 <div class="hamburger" onclick="toggleMenu()">
-  <div></div>
-  <div></div>
-  <div></div>
+  <div></div><div></div><div></div>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
@@ -185,40 +207,27 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 
     <div class="menu-box">
       <div class="menu-title">🌐 Explore</div>
-
       <a href="games.html" class="menu-item">
         <div class="menu-left">
           <span class="menu-icon">🎮</span>
-          <div>
-            <div class="menu-text">Games</div>
-            <div class="menu-desc">Play all 5 games</div>
-          </div>
+          <div><div class="menu-text">Games</div><div class="menu-desc">Play all 5 games</div></div>
         </div>
         <span class="menu-arrow">›</span>
       </a>
-
       <a href="about.html" class="menu-item">
         <div class="menu-left">
           <span class="menu-icon">👤</span>
-          <div>
-            <div class="menu-text">About Me</div>
-            <div class="menu-desc">Know more about Parth</div>
-          </div>
+          <div><div class="menu-text">About Me</div><div class="menu-desc">Know more about Parth</div></div>
         </div>
         <span class="menu-arrow">›</span>
       </a>
-
       <a href="mailto:parthhuu.2009@gmail.com" class="menu-item">
         <div class="menu-left">
           <span class="menu-icon">📩</span>
-          <div>
-            <div class="menu-text">Contact</div>
-            <div class="menu-desc">parthhuu.2009@gmail.com</div>
-          </div>
+          <div><div class="menu-text">Contact</div><div class="menu-desc">parthhuu.2009@gmail.com</div></div>
         </div>
         <span class="menu-arrow">›</span>
       </a>
-
     </div>
 
   </div>
@@ -227,10 +236,107 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 
 <div class="footer">© 2026 Parth's Game Zone | All Rights Reserved</div>
 
+<!-- Gift Chatbot Button -->
+<div class="gift-btn" onclick="toggleChat()">🎁</div>
+
+<!-- Gift Chatbot Box -->
+<div class="gift-box" id="giftBox">
+  <div class="gift-header">
+    <div class="gift-title">🎁 Ask Me Anything!</div>
+    <span class="gift-close" onclick="toggleChat()">✕</span>
+  </div>
+  <div class="gift-messages" id="giftMessages">
+    <div class="msg-bot">🎮 Hey! I'm Parth's AI assistant! Ask me anything about this website, games, or Parth! 😊</div>
+  </div>
+  <div class="gift-input-area">
+    <input class="gift-input" id="giftInput" placeholder="Ask anything..." onkeydown="if(event.key=='Enter') sendMessage()">
+    <button class="gift-send" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
 <script>
 function toggleMenu(){
   document.getElementById('sideMenu').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('open');
+}
+
+function toggleChat(){
+  var box=document.getElementById('giftBox');
+  box.classList.toggle('open');
+}
+
+// Smart AI answers
+var answers={
+  'parth':['👋 Parth Prajapati is an amazing beginner coder who built this entire website! He loves gaming and coding! 🚀','Parth is a 18+ year old coder from India who started coding just recently and already built 5 games! 💪'],
+  'game':['🎮 This website has 5 awesome games: Car Racing, 3D Car Racing, Cricket, TATA Sierra & Temple Run!','All games are built using HTML, CSS & JavaScript by Parth himself! 🔥'],
+  'car':['🚗 There are 2 car games — Classic Car Racing and 3D Car Racing! Both are super fun!'],
+  'cricket':['🏏 Cricket game is here! Hit sixes and score maximum runs! Try to beat your high score!'],
+  'sierra':['🚙 TATA Sierra driving game — drive the legendary Indian SUV with speed meter and night mode!'],
+  'temple':['🏃 Temple Run style game — run, jump, slide and collect coins! 3 lives to survive!'],
+  'contact':['📩 You can contact Parth at: parthhuu.2009@gmail.com'],
+  'email':['📩 Parth\'s email is: parthhuu.2009@gmail.com — feel free to reach out!'],
+  'html':['💻 Yes! All games and this website are built using HTML, CSS & JavaScript!'],
+  'hello':['👋 Hello! Welcome to Parth\'s Game Zone! Ask me anything!','Hey there! How can I help you today? 😊'],
+  'hi':['👋 Hi! Welcome! Ask me about the games or Parth!','Hey! 😊 What would you like to know?'],
+  'who':['👤 I\'m Parth\'s AI assistant! I know everything about this website and its creator!'],
+  'best':['🏆 All games are amazing but Temple Run is the most exciting one! Try it!'],
+  'how':['🤔 This website was built using HTML, CSS & JavaScript — all learned in just 2 days by Parth!'],
+};
+
+function sendMessage(){
+  var input=document.getElementById('giftInput');
+  var msg=input.value.trim();
+  if(!msg) return;
+
+  var messages=document.getElementById('giftMessages');
+
+  // User message
+  var userDiv=document.createElement('div');
+  userDiv.className='msg-user';
+  userDiv.innerHTML=msg;
+  messages.appendChild(userDiv);
+
+  input.value='';
+
+  // Find answer
+  var lowerMsg=msg.toLowerCase();
+  var reply='🤔 Hmm, I\'m not sure about that! Try asking about Parth, the games, or contact info! 😊';
+
+  for(var key in answers){
+    if(lowerMsg.includes(key)){
+      var arr=answers[key];
+      reply=arr[Math.floor(Math.random()*arr.length)];
+      break;
+    }
+  }
+
+  // Bot reply with delay
+  setTimeout(function(){
+    var botDiv=document.createElement('div');
+    botDiv.className='msg-bot';
+    botDiv.innerHTML='⏳ Thinking...';
+    messages.appendChild(botDiv);
+    messages.scrollTop=messages.scrollHeight;
+
+    setTimeout(function(){
+      botDiv.innerHTML=reply;
+      messages.scrollTop=messages.scrollHeight;
+    },800);
+  },300);
+
+  messages.scrollTop=messages.scrollHeight;
+}
+
+function searchGames(){
+  var input=document.getElementById('searchInput').value.toLowerCase();
+  var cards=document.querySelectorAll('.card');
+  var found=0;
+  cards.forEach(function(card){
+    var name=card.getAttribute('data-name');
+    if(name.includes(input)){card.style.display='block';found++;}
+    else{card.style.display='none';}
+  });
+  document.getElementById('noResults').style.display=found==0?'block':'none';
 }
 
 var canvas=document.getElementById('space-bg');
@@ -293,33 +399,4 @@ function drawSpace(){
   bg.addColorStop(0,'#000005');bg.addColorStop(0.5,'#05001a');bg.addColorStop(1,'#000010');
   ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
   stars.forEach(function(s){
-    s.opacity+=s.speed;
-    if(s.opacity>1||s.opacity<0) s.speed*=-1;
-    ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,'+Math.abs(s.opacity)+')';ctx.fill();
-  });
-  planets.forEach(function(p){
-    if(p.type=='earth') drawEarth(p.x,p.y,p.r);
-    else if(p.type=='mars') drawMars(p.x,p.y,p.r);
-    else if(p.type=='saturn') drawSaturn(p.x,p.y,p.r);
-    else if(p.type=='moon') drawMoon(p.x,p.y,p.r);
-  });
-  requestAnimationFrame(drawSpace);
-}
-drawSpace();
-
-function searchGames(){
-  var input=document.getElementById('searchInput').value.toLowerCase();
-  var cards=document.querySelectorAll('.card');
-  var found=0;
-  cards.forEach(function(card){
-    var name=card.getAttribute('data-name');
-    if(name.includes(input)){card.style.display='block';found++;}
-    else{card.style.display='none';}
-  });
-  document.getElementById('noResults').style.display=found==0?'block':'none';
-}
-</script>
-
-</body>
-  </html>
+    s.opacity+=
