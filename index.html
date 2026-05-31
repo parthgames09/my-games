@@ -7,16 +7,12 @@ body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:rela
 
 canvas{position:fixed;top:0;left:0;z-index:-1;}
 
-/* Hamburger Menu */
 .hamburger{position:fixed;top:15px;left:15px;z-index:1000;cursor:pointer;background:rgba(10,10,30,0.85);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:10px;backdrop-filter:blur(10px);}
 .hamburger div{width:25px;height:3px;background:#F59E0B;margin:5px 0;border-radius:3px;transition:all 0.3s;}
 
-/* Side Menu */
 .side-menu{position:fixed;top:0;left:-280px;width:270px;height:100vh;background:rgba(5,5,20,0.97);backdrop-filter:blur(20px);border-right:1px solid rgba(245,158,11,0.3);z-index:999;transition:all 0.3s;padding:70px 20px 20px;}
 .side-menu.open{left:0;}
-
 .side-menu-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:20px;text-align:center;text-shadow:0 0 10px #F59E0B;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:15px;}
-
 .side-item{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;text-decoration:none;transition:all 0.2s;border-radius:10px;margin-bottom:5px;}
 .side-item:hover{background:rgba(245,158,11,0.1);padding-left:20px;}
 .side-icon{font-size:20px;}
@@ -26,7 +22,6 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:998;display:none;}
 .overlay.open{display:block;}
 
-/* Main Layout */
 .main-layout{display:flex;gap:15px;align-items:flex-start;margin-top:50px;}
 .profile-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;width:35%;padding:20px;box-shadow:0 8px 32px rgba(245,158,11,0.1);text-align:center;position:sticky;top:65px;}
 .profile-img{width:90px;height:90px;border-radius:50%;border:4px solid #F59E0B;box-shadow:0 0 25px rgba(245,158,11,0.5);object-fit:cover;margin-bottom:10px;}
@@ -56,6 +51,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 .car3d{background:linear-gradient(45deg,#FF8C00,#FFD700);color:black;}
 .cricket{background:linear-gradient(45deg,#11998e,#38ef7d);color:white;}
 .sierra{background:linear-gradient(45deg,#1565C0,#4fc3f7);color:white;}
+.temple{background:linear-gradient(45deg,#FF6B35,#FFD700);color:black;}
 .divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,#F59E0B,transparent);margin:8px auto;}
 
 .menu-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
@@ -76,52 +72,32 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 
 <canvas id="space-bg"></canvas>
 
-<!-- Hamburger Button -->
 <div class="hamburger" onclick="toggleMenu()">
   <div></div>
   <div></div>
   <div></div>
 </div>
 
-<!-- Overlay -->
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<!-- Side Menu -->
 <div class="side-menu" id="sideMenu">
   <div class="side-menu-title">🎮 Parth's Game Zone</div>
-
   <a href="index.html" class="side-item">
     <span class="side-icon">🏠</span>
-    <div>
-      <div class="side-text">Home</div>
-      <div class="side-desc">Go to homepage</div>
-    </div>
+    <div><div class="side-text">Home</div><div class="side-desc">Go to homepage</div></div>
   </a>
-
   <a href="games.html" class="side-item">
     <span class="side-icon">🎮</span>
-    <div>
-      <div class="side-text">Games</div>
-      <div class="side-desc">Play all 4 games</div>
-    </div>
+    <div><div class="side-text">Games</div><div class="side-desc">Play all 5 games</div></div>
   </a>
-
   <a href="about.html" class="side-item">
     <span class="side-icon">👤</span>
-    <div>
-      <div class="side-text">About Me</div>
-      <div class="side-desc">Know more about Parth</div>
-    </div>
+    <div><div class="side-text">About Me</div><div class="side-desc">Know more about Parth</div></div>
   </a>
-
   <a href="mailto:parthhuu.2009@gmail.com" class="side-item">
     <span class="side-icon">📩</span>
-    <div>
-      <div class="side-text">Contact</div>
-      <div class="side-desc">parthhuu.2009@gmail.com</div>
-    </div>
+    <div><div class="side-text">Contact</div><div class="side-desc">parthhuu.2009@gmail.com</div></div>
   </a>
-
 </div>
 
 <h1 style="color:#F59E0B;font-size:20px;margin-bottom:15px;text-align:center;text-shadow:0 0 15px #F59E0B;">🎮 My Game Zone!</h1>
@@ -142,7 +118,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
     </div>
     <div class="stats">
       <div class="stat-item">
-        <div class="stat-num">4</div>
+        <div class="stat-num">5</div>
         <div class="stat-label">🎮 Games</div>
       </div>
       <div class="stat-item">
@@ -198,6 +174,12 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
         <a href="sierra-game.html"><button class="btn sierra">▶ Play Sierra Game</button></a>
       </div>
 
+      <div class="card" data-name="temple run">
+        <h2 style="color:#FF6B35;font-size:15px;">🏃 Temple Run</h2>
+        <p style="color:#aaa;font-size:11px;margin:5px 0;">Run, jump & slide — collect coins!</p>
+        <a href="temple-run.html"><button class="btn temple">▶ Play Temple Run</button></a>
+      </div>
+
       <div class="no-results" id="noResults">😔 No games found!</div>
     </div>
 
@@ -209,7 +191,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
           <span class="menu-icon">🎮</span>
           <div>
             <div class="menu-text">Games</div>
-            <div class="menu-desc">Play all 4 games</div>
+            <div class="menu-desc">Play all 5 games</div>
           </div>
         </div>
         <span class="menu-arrow">›</span>
