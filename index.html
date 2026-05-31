@@ -399,4 +399,21 @@ function drawSpace(){
   bg.addColorStop(0,'#000005');bg.addColorStop(0.5,'#05001a');bg.addColorStop(1,'#000010');
   ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
   stars.forEach(function(s){
-    s.opacity+=
+    s.opacity+=s.speed;
+    if(s.opacity>1||s.opacity<0) s.speed*=-1;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,'+Math.abs(s.opacity)+')';ctx.fill();
+  });
+  planets.forEach(function(p){
+    if(p.type=='earth') drawEarth(p.x,p.y,p.r);
+    else if(p.type=='mars') drawMars(p.x,p.y,p.r);
+    else if(p.type=='saturn') drawSaturn(p.x,p.y,p.r);
+    else if(p.type=='moon') drawMoon(p.x,p.y,p.r);
+  });
+  requestAnimationFrame(drawSpace);
+}
+drawSpace();
+</script>
+
+</body>
+</html>
