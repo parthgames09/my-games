@@ -52,6 +52,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 .cricket{background:linear-gradient(45deg,#11998e,#38ef7d);color:white;}
 .sierra{background:linear-gradient(45deg,#1565C0,#4fc3f7);color:white;}
 .temple{background:linear-gradient(45deg,#FF6B35,#FFD700);color:black;}
+.subway{background:linear-gradient(45deg,#FF6B35,#FF4500);color:white;}
 .divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,#F59E0B,transparent);margin:8px auto;}
 
 .menu-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
@@ -67,7 +68,6 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 
 .footer{color:#444;font-size:11px;margin-top:20px;padding-bottom:80px;text-align:center;}
 
-/* Gift Chatbot */
 .gift-btn{position:fixed;bottom:25px;right:25px;z-index:1000;font-size:40px;cursor:pointer;animation:bounce 1.5s infinite;filter:drop-shadow(0 0 10px gold);}
 @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 
@@ -78,18 +78,15 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 .gift-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:8px;}
 .gift-title{color:#FFD700;font-size:14px;font-weight:bold;}
 .gift-close{color:#aaa;cursor:pointer;font-size:18px;}
-
 .gift-messages{height:180px;overflow-y:auto;margin-bottom:10px;padding:5px;}
 .gift-messages::-webkit-scrollbar{width:3px;}
 .gift-messages::-webkit-scrollbar-thumb{background:#FFD700;border-radius:3px;}
-
 .msg-bot{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:15px 15px 15px 0;padding:8px 12px;margin:5px 0;color:#FFD700;font-size:12px;max-width:85%;line-height:1.5;}
 .msg-user{background:rgba(255,255,255,0.08);border-radius:15px 15px 0 15px;padding:8px 12px;margin:5px 0 5px auto;color:white;font-size:12px;max-width:85%;text-align:right;line-height:1.5;}
-
 .gift-input-area{display:flex;gap:8px;}
 .gift-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:8px 12px;color:#FFD700;font-size:12px;outline:none;}
 .gift-input::placeholder{color:#555;}
-.gift-send{background:linear-gradient(45deg,#F59E0B,#FFD700);border:none;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.gift-send{background:linear-gradient(45deg,#F59E0B,#FFD700);border:none;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:16px;}
 </style>
 </head>
 <body>
@@ -110,7 +107,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
   </a>
   <a href="games.html" class="side-item">
     <span class="side-icon">🎮</span>
-    <div><div class="side-text">Games</div><div class="side-desc">Play all 5 games</div></div>
+    <div><div class="side-text">Games</div><div class="side-desc">Play all 6 games</div></div>
   </a>
   <a href="about.html" class="side-item">
     <span class="side-icon">👤</span>
@@ -140,7 +137,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
     </div>
     <div class="stats">
       <div class="stat-item">
-        <div class="stat-num">5</div>
+        <div class="stat-num">6</div>
         <div class="stat-label">🎮 Games</div>
       </div>
       <div class="stat-item">
@@ -202,6 +199,12 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
         <a href="temple-run.html"><button class="btn temple">▶ Play Temple Run</button></a>
       </div>
 
+      <div class="card" data-name="subway run 3d">
+        <h2 style="color:#FF4500;font-size:15px;">🏃 Subway Run 3D</h2>
+        <p style="color:#aaa;font-size:11px;margin:5px 0;">Swipe to run, jump & slide!</p>
+        <a href="subway-3D.html"><button class="btn subway">▶ Play Subway Run 3D</button></a>
+      </div>
+
       <div class="no-results" id="noResults">😔 No games found!</div>
     </div>
 
@@ -210,7 +213,7 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
       <a href="games.html" class="menu-item">
         <div class="menu-left">
           <span class="menu-icon">🎮</span>
-          <div><div class="menu-text">Games</div><div class="menu-desc">Play all 5 games</div></div>
+          <div><div class="menu-text">Games</div><div class="menu-desc">Play all 6 games</div></div>
         </div>
         <span class="menu-arrow">›</span>
       </a>
@@ -236,17 +239,16 @@ canvas{position:fixed;top:0;left:0;z-index:-1;}
 
 <div class="footer">© 2026 Parth's Game Zone | All Rights Reserved</div>
 
-<!-- Gift Chatbot Button -->
+<!-- Gift Chatbot -->
 <div class="gift-btn" onclick="toggleChat()">🎁</div>
 
-<!-- Gift Chatbot Box -->
 <div class="gift-box" id="giftBox">
   <div class="gift-header">
     <div class="gift-title">🎁 Ask Me Anything!</div>
     <span class="gift-close" onclick="toggleChat()">✕</span>
   </div>
   <div class="gift-messages" id="giftMessages">
-    <div class="msg-bot">🎮 Hey! I'm Parth's AI assistant! Ask me anything about this website, games, or Parth! 😊</div>
+    <div class="msg-bot">🎮 Hey! I'm Parth's AI assistant! Ask me anything! 😊</div>
   </div>
   <div class="gift-input-area">
     <input class="gift-input" id="giftInput" placeholder="Ask anything..." onkeydown="if(event.key=='Enter') sendMessage()">
@@ -261,47 +263,34 @@ function toggleMenu(){
 }
 
 function toggleChat(){
-  var box=document.getElementById('giftBox');
-  box.classList.toggle('open');
+  document.getElementById('giftBox').classList.toggle('open');
 }
 
-// Smart AI answers
 var answers={
-  'parth':['👋 Parth Prajapati is an amazing beginner coder who built this entire website! He loves gaming and coding! 🚀','Parth is a 18+ year old coder from India who started coding just recently and already built 5 games! 💪'],
-  'game':['🎮 This website has 5 awesome games: Car Racing, 3D Car Racing, Cricket, TATA Sierra & Temple Run!','All games are built using HTML, CSS & JavaScript by Parth himself! 🔥'],
-  'car':['🚗 There are 2 car games — Classic Car Racing and 3D Car Racing! Both are super fun!'],
-  'cricket':['🏏 Cricket game is here! Hit sixes and score maximum runs! Try to beat your high score!'],
-  'sierra':['🚙 TATA Sierra driving game — drive the legendary Indian SUV with speed meter and night mode!'],
-  'temple':['🏃 Temple Run style game — run, jump, slide and collect coins! 3 lives to survive!'],
-  'contact':['📩 You can contact Parth at: parthhuu.2009@gmail.com'],
-  'email':['📩 Parth\'s email is: parthhuu.2009@gmail.com — feel free to reach out!'],
-  'html':['💻 Yes! All games and this website are built using HTML, CSS & JavaScript!'],
-  'hello':['👋 Hello! Welcome to Parth\'s Game Zone! Ask me anything!','Hey there! How can I help you today? 😊'],
-  'hi':['👋 Hi! Welcome! Ask me about the games or Parth!','Hey! 😊 What would you like to know?'],
-  'who':['👤 I\'m Parth\'s AI assistant! I know everything about this website and its creator!'],
-  'best':['🏆 All games are amazing but Temple Run is the most exciting one! Try it!'],
-  'how':['🤔 This website was built using HTML, CSS & JavaScript — all learned in just 2 days by Parth!'],
+  'parth':['👋 Parth Prajapati is an amazing coder who built this website!','Parth is a beginner coder who built 6 games! 💪'],
+  'game':['🎮 6 games: Car Racing, 3D Car, Cricket, TATA Sierra, Temple Run & Subway Run 3D!'],
+  'car':['🚗 2 car games — Classic Car Racing and 3D Car Racing!'],
+  'cricket':['🏏 Cricket game — hit sixes and score runs!'],
+  'sierra':['🚙 TATA Sierra driving game with speed meter!'],
+  'temple':['🏃 Temple Run — jump, slide, collect coins!'],
+  'subway':['🏃 Subway Run 3D — swipe to play! Real 3D game!'],
+  'contact':['📩 Email: parthhuu.2009@gmail.com'],
+  'hello':['👋 Hello! Welcome to Parth\'s Game Zone!'],
+  'hi':['Hey! 😊 What would you like to know?'],
 };
 
 function sendMessage(){
   var input=document.getElementById('giftInput');
   var msg=input.value.trim();
   if(!msg) return;
-
   var messages=document.getElementById('giftMessages');
-
-  // User message
   var userDiv=document.createElement('div');
   userDiv.className='msg-user';
   userDiv.innerHTML=msg;
   messages.appendChild(userDiv);
-
   input.value='';
-
-  // Find answer
   var lowerMsg=msg.toLowerCase();
-  var reply='🤔 Hmm, I\'m not sure about that! Try asking about Parth, the games, or contact info! 😊';
-
+  var reply='🤔 Try asking about Parth, games, or contact! 😊';
   for(var key in answers){
     if(lowerMsg.includes(key)){
       var arr=answers[key];
@@ -309,21 +298,17 @@ function sendMessage(){
       break;
     }
   }
-
-  // Bot reply with delay
   setTimeout(function(){
     var botDiv=document.createElement('div');
     botDiv.className='msg-bot';
     botDiv.innerHTML='⏳ Thinking...';
     messages.appendChild(botDiv);
     messages.scrollTop=messages.scrollHeight;
-
     setTimeout(function(){
       botDiv.innerHTML=reply;
       messages.scrollTop=messages.scrollHeight;
     },800);
   },300);
-
   messages.scrollTop=messages.scrollHeight;
 }
 
@@ -343,19 +328,16 @@ var canvas=document.getElementById('space-bg');
 var ctx=canvas.getContext('2d');
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
-
 var stars=[];
 for(var i=0;i<200;i++){
   stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+0.5,opacity:Math.random(),speed:Math.random()*0.02+0.005});
 }
-
 var planets=[
   {x:canvas.width*0.08,y:canvas.height*0.2,r:45,type:'earth'},
   {x:canvas.width*0.92,y:canvas.height*0.15,r:25,type:'mars'},
   {x:canvas.width*0.85,y:canvas.height*0.75,r:30,type:'saturn'},
   {x:canvas.width*0.12,y:canvas.height*0.8,r:18,type:'moon'},
 ];
-
 function drawEarth(x,y,r){
   var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
   grad.addColorStop(0,'#4fc3f7');grad.addColorStop(0.5,'#1565C0');grad.addColorStop(1,'#0a2a6e');
@@ -368,13 +350,11 @@ function drawEarth(x,y,r){
   ctx.beginPath();ctx.arc(x,y,r+4,0,Math.PI*2);
   ctx.strokeStyle='rgba(100,180,255,0.3)';ctx.lineWidth=6;ctx.stroke();
 }
-
 function drawMars(x,y,r){
   var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
   grad.addColorStop(0,'#ff6b35');grad.addColorStop(0.6,'#c0392b');grad.addColorStop(1,'#7b241c');
   ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
 }
-
 function drawSaturn(x,y,r){
   ctx.beginPath();ctx.ellipse(x,y,r*2.2,r*0.4,0,0,Math.PI*2);
   ctx.strokeStyle='rgba(210,180,140,0.5)';ctx.lineWidth=8;ctx.stroke();
@@ -384,7 +364,6 @@ function drawSaturn(x,y,r){
   ctx.beginPath();ctx.ellipse(x,y+r*0.1,r*2.2,r*0.4,0,0,Math.PI);
   ctx.strokeStyle='rgba(210,180,140,0.6)';ctx.lineWidth=8;ctx.stroke();
 }
-
 function drawMoon(x,y,r){
   var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
   grad.addColorStop(0,'#e0e0e0');grad.addColorStop(0.7,'#aaa');grad.addColorStop(1,'#777');
@@ -392,7 +371,6 @@ function drawMoon(x,y,r){
   ctx.fillStyle='rgba(0,0,0,0.15)';
   ctx.beginPath();ctx.arc(x+r*0.2,y-r*0.2,r*0.2,0,Math.PI*2);ctx.fill();
 }
-
 function drawSpace(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   var bg=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
@@ -416,4 +394,4 @@ drawSpace();
 </script>
 
 </body>
-</html>
+                               </html>
