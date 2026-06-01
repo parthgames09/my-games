@@ -1,0 +1,239 @@
+<html>
+<head>
+<style>
+*{margin:0;padding:0;}
+body{overflow:hidden;background:black;}
+#renderCanvas{width:100%;height:100%;touch-action:none;}
+#ui{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:10;background:rgba(0,0,0,0.7);border:1px solid #FFD700;border-radius:15px;padding:8px 20px;display:flex;gap:20px;backdrop-filter:blur(10px);}
+#ui div{text-align:center;font-family:Arial;}
+#score{color:#FFD700;font-size:13px;font-weight:bold;}
+#highscore{color:#FF4D4D;font-size:13px;font-weight:bold;}
+#coins{color:#00FF85;font-size:13px;font-weight:bold;}
+#result{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;color:red;font-weight:bold;font-family:Arial;text-align:center;display:none;background:rgba(0,0,0,0.8);padding:20px;border-radius:15px;border:1px solid red;z-index:20;}
+#controls{position:fixed;bottom:20px;left:0;right:0;text-align:center;z-index:10;}
+.btn{padding:18px 35px;font-size:22px;border:none;border-radius:15px;cursor:pointer;margin:6px;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div>
+    <div style="color:#aaa;font-size:10px;">🏆 SCORE</div>
+    <div id="score">0</div>
+  </div>
+  <div>
+    <div style="color:#aaa;font-size:10px;">👑 BEST</div>
+    <div id="highscore">0</div>
+  </div>
+  <div>
+    <div style="color:#aaa;font-size:10px;">🪙 COINS</div>
+    <div id="coins">0</div>
+  </div>
+</div>
+
+<canvas id="renderCanvas"></canvas>
+
+<div id="result">
+  <div id="resultText"></div>
+  <br>
+  <button class="btn" onclick="startGame()" style="background:lime;color:black;font-size:16px;padding:12px 25px;">▶ Play Again</button>
+</div>
+
+<div id="controls">
+  <button class="btn" onclick="moveLeft()" style="background:#FFD700;color:black;">⬅️</button>
+  <button class="btn" onclick="startGame()" style="background:lime;color:black;font-size:16px;padding:18px 25px;">START</button>
+  <button class="btn" onclick="moveRight()" style="background:#FFD700;color:black;">➡️</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babylonjs/6.26.0/babylon.js"></script>
+<script>
+var canvas=document.getElementById('renderCanvas');
+var engine=new BABYLON.Engine(canvas,true);
+var score=0,highscore=0,coins=0,running=false,speed=0.12;
+var playerLane=1;
+var lanePositions=[-3,0,3];
+var targetX=0;
+var obstacles=[],coinMeshes=[];
+var frameCount=0;
+var playerCar,scene;
+
+var createScene=function(){
+  scene=new BABYLON.Scene(engine);
+  scene.clearColor=new BABYLON.Color4(0.02,0.02,0.1,1);
+
+  var camera=new BABYLON.FreeCamera('cam',new BABYLON.Vector3(0,4,8),scene);
+  camera.setTarget(new BABYLON.Vector3(0,0,0));
+
+  var light=new BABYLON.HemisphericLight('light',new BABYLON.Vector3(0,1,0),scene);
+  light.intensity=0.7;
+  var dir=new BABYLON.DirectionalLight('dir',new BABYLON.Vector3(0,-1,-1),scene);
+  dir.intensity=0.5;
+
+  // Road
+  var road=BABYLON.MeshBuilder.CreateBox('road',{width:9,height:0.1,depth:300},scene);
+  road.position.set(0,-0.05,-140);
+  var roadMat=new BABYLON.StandardMaterial('roadMat',scene);
+  roadMat.diffuseColor=new BABYLON.Color3(0.15,0.15,0.15);
+  road.material=roadMat;
+
+  // Road borders
+  [-4.5,4.5].forEach(function(x){
+    var border=BABYLON.MeshBuilder.CreateBox('border',{width:0.2,height:0.12,depth:300},scene);
+    border.position.set(x,0,-140);
+    var bMat=new BABYLON.StandardMaterial('bMat',scene);
+    bMat.diffuseColor=new BABYLON.Color3(1,0.8,0);
+    bMat.emissiveColor=new BABYLON.Color3(0.3,0.2,0);
+    border.material=bMat;
+  });
+
+  // Player Car
+  playerCar=new BABYLON.TransformNode('playerCar',scene);
+
+  var body=BABYLON.MeshBuilder.CreateBox('body',{width:1.8,height:0.7,depth:3.5},scene);
+  body.parent=playerCar;
+  body.position.y=0.5;
+  var bodyMat=new BABYLON.StandardMaterial('bodyMat',scene);
+  bodyMat.diffuseColor=new BABYLON.Color3(0.9,0.1,0.1);
+  body.material=bodyMat;
+
+  var top=BABYLON.MeshBuilder.CreateBox('top',{width:1.4,height:0.6,depth:2},scene);
+  top.parent=playerCar;
+  top.position.set(0,1.1,0.2);
+  var topMat=new BABYLON.StandardMaterial('topMat',scene);
+  topMat.diffuseColor=new BABYLON.Color3(0.7,0.05,0.05);
+  top.material=topMat;
+
+  // Wheels
+  [[-1,0.3,1.2],[1,0.3,1.2],[-1,0.3,-1.2],[1,0.3,-1.2]].forEach(function(p,i){
+    var w=BABYLON.MeshBuilder.CreateCylinder('w'+i,{diameter:0.65,height:0.25,tessellation:12},scene);
+    w.parent=playerCar;
+    w.rotation.z=Math.PI/2;
+    w.position.set(p[0],p[1],p[2]);
+    var wMat=new BABYLON.StandardMaterial('wMat'+i,scene);
+    wMat.diffuseColor=new BABYLON.Color3(0.1,0.1,0.1);
+    w.material=wMat;
+  });
+
+  playerCar.position.set(0,0,4);
+
+  // Mountains
+  [-20,-10,0,10,20].forEach(function(x,i){
+    var m=BABYLON.MeshBuilder.CreateCylinder('m'+i,{diameterTop:0,diameterBottom:10,height:15,tessellation:4},scene);
+    m.position.set(x,-3,-40);
+    var mMat=new BABYLON.StandardMaterial('mMat'+i,scene);
+    mMat.diffuseColor=new BABYLON.Color3(0.15+i*0.03,0.25,0.15);
+    m.material=mMat;
+  });
+
+  scene.registerBeforeRender(function(){
+    if(!running) return;
+    frameCount++;
+    playerCar.position.x+=(targetX-playerCar.position.x)*0.12;
+
+    if(frameCount%70==0) spawnObstacle();
+    if(frameCount%40==0) spawnCoin();
+
+    for(var i=obstacles.length-1;i>=0;i--){
+      var ob=obstacles[i];
+      ob.position.z+=speed;
+      if(Math.abs(ob.position.z-playerCar.position.z)<2.5&&
+         Math.abs(ob.position.x-playerCar.position.x)<1.8){
+        running=false;
+        if(score>highscore){
+          highscore=score;
+          document.getElementById('highscore').innerHTML=highscore;
+        }
+        document.getElementById('resultText').innerHTML='💥 Game Over!\n🏆 Score: '+score+'\n🪙 Coins: '+coins;
+        document.getElementById('result').style.display='block';
+        return;
+      }
+      if(ob.position.z>8){
+        ob.getChildMeshes().forEach(function(m){m.dispose();});
+        ob.dispose();
+        obstacles.splice(i,1);
+        score++;
+        speed+=0.003;
+        document.getElementById('score').innerHTML=score;
+      }
+    }
+
+    for(var j=coinMeshes.length-1;j>=0;j--){
+      var c=coinMeshes[j];
+      c.position.z+=speed;
+      c.rotation.y+=0.05;
+      if(Math.abs(c.position.z-playerCar.position.z)<2&&
+         Math.abs(c.position.x-playerCar.position.x)<1.5){
+        c.dispose();
+        coinMeshes.splice(j,1);
+        coins++;
+        document.getElementById('coins').innerHTML=coins;
+      }
+      if(c.position.z>8){c.dispose();coinMeshes.splice(j,1);}
+    }
+  });
+
+  return scene;
+};
+
+function spawnObstacle(){
+  var lane=lanePositions[Math.floor(Math.random()*3)];
+  var ob=new BABYLON.TransformNode('ob'+frameCount,scene);
+  var obBody=BABYLON.MeshBuilder.CreateBox('obBody',{width:1.8,height:0.7,depth:3.5},scene);
+  obBody.parent=ob;
+  obBody.position.y=0.5;
+  var colors=[
+    new BABYLON.Color3(0,0,0.9),
+    new BABYLON.Color3(0,0.7,0),
+    new BABYLON.Color3(1,0.4,0),
+    new BABYLON.Color3(0.6,0,0.8)
+  ];
+  var obMat=new BABYLON.StandardMaterial('obMat'+frameCount,scene);
+  obMat.diffuseColor=colors[Math.floor(Math.random()*colors.length)];
+  obBody.material=obMat;
+  var obTop=BABYLON.MeshBuilder.CreateBox('obTop',{width:1.4,height:0.6,depth:2},scene);
+  obTop.parent=ob;
+  obTop.position.set(0,1.1,0.2);
+  obTop.material=obMat;
+  ob.position.set(lane,0,-30);
+  obstacles.push(ob);
+}
+
+function spawnCoin(){
+  var lane=lanePositions[Math.floor(Math.random()*3)];
+  var coin=BABYLON.MeshBuilder.CreateCylinder('coin'+frameCount,{diameter:0.8,height:0.2,tessellation:12},scene);
+  coin.position.set(lane,0.8,-30);
+  coin.rotation.x=Math.PI/2;
+  var coinMat=new BABYLON.StandardMaterial('coinMat',scene);
+  coinMat.diffuseColor=new BABYLON.Color3(1,0.85,0);
+  coinMat.emissiveColor=new BABYLON.Color3(0.3,0.2,0);
+  coin.material=coinMat;
+  coinMeshes.push(coin);
+}
+
+var scene=createScene();
+engine.runRenderLoop(function(){scene.render();});
+window.addEventListener('resize',function(){engine.resize();});
+
+function moveLeft(){
+  if(playerLane>0){playerLane--;targetX=lanePositions[playerLane];}
+}
+function moveRight(){
+  if(playerLane<2){playerLane++;targetX=lanePositions[playerLane];}
+}
+function startGame(){
+  score=0;coins=0;speed=0.12;running=true;
+  playerLane=1;targetX=0;frameCount=0;
+  obstacles.forEach(function(o){
+    o.getChildMeshes().forEach(function(m){m.dispose();});
+    o.dispose();
+  });
+  obstacles=[];
+  coinMeshes.forEach(function(c){c.dispose();});
+  coinMeshes=[];
+  document.getElementById('score').innerHTML='0';
+  document.getElementById('coins').innerHTML='0';
+  document.getElementById('result').style.display='none';
+}
+</script>
+</body>
+  </html>
