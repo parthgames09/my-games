@@ -1,397 +1,364 @@
 <html>
 <head>
-<link rel="manifest" href="manifest.json">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:relative;overflow-x:hidden;}
+*{margin:0;padding:0;}
+body{overflow:hidden;background:#0a0a1a;font-family:'Arial';}
 
-canvas{position:fixed;top:0;left:0;z-index:-1;}
+#loading-screen{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0a0a1a 100%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
 
-.hamburger{position:fixed;top:15px;left:15px;z-index:1000;cursor:pointer;background:rgba(10,10,30,0.85);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:10px;backdrop-filter:blur(10px);}
-.hamburger div{width:25px;height:3px;background:#F59E0B;margin:5px 0;border-radius:3px;}
+#loading-canvas{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+}
 
-.side-menu{position:fixed;top:0;left:-280px;width:270px;height:100vh;background:rgba(5,5,20,0.97);backdrop-filter:blur(20px);border-right:1px solid rgba(245,158,11,0.3);z-index:999;transition:all 0.3s;padding:70px 20px 20px;}
-.side-menu.open{left:0;}
-.side-menu-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:20px;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:15px;}
-.side-item{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid rgba(255,255,255,0.05);text-decoration:none;transition:all 0.2s;border-radius:10px;margin-bottom:5px;}
-.side-item:hover{background:rgba(245,158,11,0.1);padding-left:20px;}
-.side-icon{font-size:20px;}
-.side-text{color:#F59E0B;font-size:14px;font-weight:500;}
-.side-desc{color:#666;font-size:11px;margin-top:2px;}
+.loading-content{
+  position:relative;
+  z-index:10;
+  text-align:center;
+}
 
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:998;display:none;}
-.overlay.open{display:block;}
+#logo-container{
+  width:200px;
+  height:200px;
+  margin:0 auto 30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:logoRotate 4s infinite linear;
+  filter:drop-shadow(0 0 30px #FFD700) drop-shadow(0 0 60px rgba(255,215,0,0.5));
+}
 
-.main-layout{display:flex;gap:15px;align-items:flex-start;margin-top:50px;}
-.profile-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;width:35%;padding:20px;box-shadow:0 8px 32px rgba(245,158,11,0.1);text-align:center;position:sticky;top:65px;}
-.profile-img{width:90px;height:90px;border-radius:50%;border:4px solid #F59E0B;box-shadow:0 0 25px rgba(245,158,11,0.5);object-fit:cover;margin-bottom:10px;}
-.profile-name{font-size:16px;font-weight:bold;color:#FFD700;margin-bottom:5px;}
-.profile-badge{display:inline-block;background:linear-gradient(45deg,#F59E0B,#FFD700);color:black;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:bold;margin:3px;}
-.profile-bio{color:#aaa;font-size:11px;margin:10px 0;line-height:1.6;text-align:left;}
-.stats{display:flex;justify-content:space-around;margin:12px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);padding:10px 0;}
-.stat-item{text-align:center;}
-.stat-num{font-size:16px;font-weight:bold;color:#FFD700;}
-.stat-label{font-size:9px;color:#aaa;margin-top:2px;}
-.skill-tags{margin:10px 0;text-align:center;}
-.tag{display:inline-block;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#F59E0B;padding:3px 8px;border-radius:15px;font-size:9px;margin:2px;}
+#logo-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
 
-.right-section{width:65%;display:flex;flex-direction:column;gap:15px;}
-.games-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
-.games-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:10px;text-align:center;text-shadow:0 0 10px #F59E0B;}
-.search-bar{position:relative;margin-bottom:12px;}
-.search-bar input{width:100%;padding:10px 15px 10px 38px;border-radius:25px;border:1px solid rgba(245,158,11,0.3);background:rgba(255,255,255,0.05);color:#FFD700;font-size:13px;outline:none;}
-.search-bar input::placeholder{color:#666;}
-.search-bar input:focus{border-color:#F59E0B;box-shadow:0 0 10px rgba(245,158,11,0.2);}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;}
-.no-results{color:#aaa;text-align:center;padding:15px;font-size:13px;display:none;}
-.card{background:rgba(255,255,255,0.05);border-radius:15px;padding:14px;margin:10px 0;border:1px solid rgba(245,158,11,0.2);transition:all 0.3s;}
-.card:hover{border-color:#F59E0B;box-shadow:0 4px 20px rgba(245,158,11,0.2);}
-.btn{padding:10px 20px;font-size:14px;border:none;border-radius:25px;cursor:pointer;margin:6px auto;width:90%;display:block;font-weight:bold;}
-.car{background:linear-gradient(45deg,#FF4D4D,#ff7676);color:white;}
-.car3d{background:linear-gradient(45deg,#FF8C00,#FFD700);color:black;}
-.cricket{background:linear-gradient(45deg,#11998e,#38ef7d);color:white;}
-.sierra{background:linear-gradient(45deg,#1565C0,#4fc3f7);color:white;}
-.temple{background:linear-gradient(45deg,#FF6B35,#FFD700);color:black;}
-.subway{background:linear-gradient(45deg,#FF6B35,#FF4500);color:white;}
-.divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,#F59E0B,transparent);margin:8px auto;}
+@keyframes logoRotate{
+  0%{transform:rotateZ(0deg);}
+  100%{transform:rotateZ(360deg);}
+}
 
-.menu-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
-.menu-title{color:#FFD700;font-size:14px;font-weight:bold;margin-bottom:10px;text-align:center;}
-.menu-item{display:flex;align-items:center;justify-content:space-between;padding:12px 5px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:all 0.2s;}
-.menu-item:last-child{border-bottom:none;}
-.menu-item:hover{padding-left:10px;}
-.menu-left{display:flex;align-items:center;gap:10px;}
-.menu-icon{font-size:18px;}
-.menu-text{color:#F59E0B;font-size:13px;font-weight:500;}
-.menu-desc{color:#666;font-size:10px;margin-top:2px;}
-.menu-arrow{color:#666;font-size:16px;}
+.text-container{
+  margin-top:20px;
+  font-size:32px;
+  font-weight:bold;
+  letter-spacing:3px;
+  height:50px;
+}
 
-.footer{color:#444;font-size:11px;margin-top:20px;padding-bottom:80px;text-align:center;}
+.letter{
+  display:inline-block;
+  color:#FFD700;
+  text-shadow:0 0 10px #FFD700, 0 0 20px rgba(255,215,0,0.5);
+  opacity:0;
+  animation:letterPop 0.6s ease-out forwards;
+  margin:0 2px;
+}
 
-.gift-btn{position:fixed;bottom:25px;right:25px;z-index:1000;font-size:40px;cursor:pointer;animation:bounce 1.5s infinite;filter:drop-shadow(0 0 10px gold);}
-@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes letterPop{
+  0%{
+    opacity:0;
+    transform:translateY(30px) scale(0.5);
+  }
+  50%{
+    transform:translateY(-10px) scale(1.1);
+  }
+  100%{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
 
-.gift-box{position:fixed;bottom:90px;right:20px;z-index:1000;width:300px;background:rgba(5,5,20,0.97);border:2px solid #FFD700;border-radius:20px;padding:15px;box-shadow:0 0 30px rgba(245,158,11,0.3);display:none;backdrop-filter:blur(20px);}
-.gift-box.open{display:block;animation:giftOpen 0.4s ease;}
-@keyframes giftOpen{0%{transform:scale(0);opacity:0;}50%{transform:scale(1.05);}100%{transform:scale(1);opacity:1;}}
+.loading-bar-container{
+  margin-top:40px;
+  width:200px;
+  height:6px;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid #FFD700;
+}
 
-.gift-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:8px;}
-.gift-title{color:#FFD700;font-size:14px;font-weight:bold;}
-.gift-close{color:#aaa;cursor:pointer;font-size:18px;}
-.gift-messages{height:180px;overflow-y:auto;margin-bottom:10px;padding:5px;}
-.gift-messages::-webkit-scrollbar{width:3px;}
-.gift-messages::-webkit-scrollbar-thumb{background:#FFD700;border-radius:3px;}
-.msg-bot{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:15px 15px 15px 0;padding:8px 12px;margin:5px 0;color:#FFD700;font-size:12px;max-width:85%;line-height:1.5;}
-.msg-user{background:rgba(255,255,255,0.08);border-radius:15px 15px 0 15px;padding:8px 12px;margin:5px 0 5px auto;color:white;font-size:12px;max-width:85%;text-align:right;line-height:1.5;}
-.gift-input-area{display:flex;gap:8px;}
-.gift-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:8px 12px;color:#FFD700;font-size:12px;outline:none;}
-.gift-input::placeholder{color:#555;}
-.gift-send{background:linear-gradient(45deg,#F59E0B,#FFD700);border:none;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:16px;}
+.loading-bar{
+  height:100%;
+  background:linear-gradient(90deg,#FFD700,#FF8C00);
+  width:0%;
+  animation:loadingBar 3s ease-in-out forwards;
+  box-shadow:0 0 10px #FFD700;
+}
+
+@keyframes loadingBar{
+  0%{width:0%;}
+  50%{width:70%;}
+  100%{width:100%;}
+}
+
+.loading-text{
+  margin-top:20px;
+  color:#FFD700;
+  font-size:14px;
+  letter-spacing:2px;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%,49%{opacity:1;}
+  50%,100%{opacity:0.3;}
+}
+
+#website-content{
+  opacity:0;
+  transition:opacity 0.8s ease-in;
+  pointer-events:none;
+}
+
+#website-content.loaded{
+  opacity:1;
+  pointer-events:auto;
+}
 </style>
 </head>
 <body>
 
-<canvas id="space-bg"></canvas>
-
-<div class="hamburger" onclick="toggleMenu()">
-  <div></div><div></div><div></div>
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <canvas id="loading-canvas"></canvas>
+  
+  <div class="loading-content">
+    <div id="logo-container">
+      <img id="logo-img" src="parth-logo.png" alt="Logo">
+    </div>
+    
+    <div class="text-container" id="text-container"></div>
+    
+    <div class="loading-bar-container">
+      <div class="loading-bar"></div>
+    </div>
+    
+    <div class="loading-text">INITIALIZING...</div>
+  </div>
 </div>
 
-<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
-<div class="side-menu" id="sideMenu">
-  <div class="side-menu-title">🎮 Parth's Game Zone</div>
-  <a href="index.html" class="side-item">
-    <span class="side-icon">🏠</span>
-    <div><div class="side-text">Home</div><div class="side-desc">Go to homepage</div></div>
-  </a>
-  <a href="games.html" class="side-item">
-    <span class="side-icon">🎮</span>
-    <div><div class="side-text">Games</div><div class="side-desc">Play all 6 games</div></div>
-  </a>
-  <a href="about.html" class="side-item">
-    <span class="side-icon">👤</span>
-    <div><div class="side-text">About Me</div><div class="side-desc">Know more about Parth</div></div>
-  </a>
-  <a href="mailto:parthhuu.2009@gmail.com" class="side-item">
-    <span class="side-icon">📩</span>
-    <div><div class="side-text">Contact</div><div class="side-desc">parthhuu.2009@gmail.com</div></div>
-  </a>
-</div>
-
-<h1 style="color:#F59E0B;font-size:20px;margin-bottom:15px;text-align:center;text-shadow:0 0 15px #F59E0B;">🎮 My Game Zone!</h1>
-
-<div class="main-layout">
-
-  <div class="profile-box">
-    <img class="profile-img" src="ChatGPTImageMay30202601_54_36P.jpeg" alt="Parth">
-    <div class="profile-name">Parth Prajapati</div>
-    <div>
-      <span class="profile-badge">🖥️ Coder</span>
-      <span class="profile-badge">✨ Creator</span>
-    </div>
-    <div class="profile-bio">
-      👋 Hey! I'm Parth — a beginner coder.<br>
-      I build games using HTML, CSS & JavaScript.<br>
-      🚀 Currently learning web development!
-    </div>
-    <div class="stats">
-      <div class="stat-item">
-        <div class="stat-num">6</div>
-        <div class="stat-label">🎮 Games</div>
+<!-- Website Content (Hidden Initially) -->
+<div id="website-content">
+  <html>
+  <head>
+  <link rel="manifest" href="manifest.json">
+  <style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:Arial;color:#F59E0B;min-height:100vh;padding:15px;position:relative;overflow-x:hidden;}
+  canvas{position:fixed;top:0;left:0;z-index:-1;}
+  .hamburger{position:fixed;top:15px;left:15px;z-index:1000;cursor:pointer;background:rgba(10,10,30,0.85);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:10px;backdrop-filter:blur(10px);}
+  .hamburger div{width:25px;height:3px;background:#F59E0B;margin:5px 0;border-radius:3px;}
+  .side-menu{position:fixed;top:0;left:-280px;width:270px;height:100vh;background:rgba(5,5,20,0.97);backdrop-filter:blur(20px);border-right:1px solid rgba(245,158,11,0.3);z-index:999;transition:all 0.3s;padding:70px 20px 20px;}
+  .side-menu.open{left:0;}
+  .side-menu-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:20px;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:15px;}
+  .side-item{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid rgba(255,255,255,0.05);text-decoration:none;transition:all 0.2s;border-radius:10px;margin-bottom:5px;}
+  .side-item:hover{background:rgba(245,158,11,0.1);padding-left:20px;}
+  .side-icon{font-size:20px;}
+  .side-text{color:#F59E0B;font-size:14px;font-weight:500;}
+  .side-desc{color:#666;font-size:11px;margin-top:2px;}
+  .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:998;display:none;}
+  .overlay.open{display:block;}
+  .main-layout{display:flex;gap:15px;align-items:flex-start;margin-top:50px;}
+  .profile-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;width:35%;padding:20px;box-shadow:0 8px 32px rgba(245,158,11,0.1);text-align:center;position:sticky;top:65px;}
+  .profile-img{width:90px;height:90px;border-radius:50%;border:4px solid #F59E0B;box-shadow:0 0 25px rgba(245,158,11,0.5);object-fit:cover;margin-bottom:10px;}
+  .profile-name{font-size:16px;font-weight:bold;color:#FFD700;margin-bottom:5px;}
+  .profile-badge{display:inline-block;background:linear-gradient(45deg,#F59E0B,#FFD700);color:black;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:bold;margin:3px;}
+  .profile-bio{color:#aaa;font-size:11px;margin:10px 0;line-height:1.6;text-align:left;}
+  .stats{display:flex;justify-content:space-around;margin:12px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);padding:10px 0;}
+  .stat-item{text-align:center;}
+  .stat-num{font-size:16px;font-weight:bold;color:#FFD700;}
+  .stat-label{font-size:9px;color:#aaa;margin-top:2px;}
+  .skill-tags{margin:10px 0;text-align:center;}
+  .tag{display:inline-block;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#F59E0B;padding:3px 8px;border-radius:15px;font-size:9px;margin:2px;}
+  .right-section{width:65%;display:flex;flex-direction:column;gap:15px;}
+  .games-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
+  .games-title{color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:10px;text-align:center;text-shadow:0 0 10px #F59E0B;}
+  .search-bar{position:relative;margin-bottom:12px;}
+  .search-bar input{width:100%;padding:10px 15px 10px 38px;border-radius:25px;border:1px solid rgba(245,158,11,0.3);background:rgba(255,255,255,0.05);color:#FFD700;font-size:13px;outline:none;}
+  .search-bar input::placeholder{color:#666;}
+  .search-bar input:focus{border-color:#F59E0B;box-shadow:0 0 10px rgba(245,158,11,0.2);}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;}
+  .no-results{color:#aaa;text-align:center;padding:15px;font-size:13px;display:none;}
+  .card{background:rgba(255,255,255,0.05);border-radius:15px;padding:14px;margin:10px 0;border:1px solid rgba(245,158,11,0.2);transition:all 0.3s;}
+  .card:hover{border-color:#F59E0B;box-shadow:0 4px 20px rgba(245,158,11,0.2);}
+  .btn{padding:10px 20px;font-size:14px;border:none;border-radius:25px;cursor:pointer;margin:6px auto;width:90%;display:block;font-weight:bold;}
+  .car{background:linear-gradient(45deg,#FF4D4D,#ff7676);color:white;}
+  .car3d{background:linear-gradient(45deg,#FF8C00,#FFD700);color:black;}
+  .cricket{background:linear-gradient(45deg,#11998e,#38ef7d);color:white;}
+  .sierra{background:linear-gradient(45deg,#1565C0,#4fc3f7);color:white;}
+  .temple{background:linear-gradient(45deg,#FF6B35,#FFD700);color:black;}
+  .subway{background:linear-gradient(45deg,#FF6B35,#FF4500);color:white;}
+  .divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,#F59E0B,transparent);margin:8px auto;}
+  .menu-box{background:rgba(10,10,30,0.85);backdrop-filter:blur(10px);border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:15px;box-shadow:0 8px 32px rgba(245,158,11,0.1);}
+  .menu-title{color:#FFD700;font-size:14px;font-weight:bold;margin-bottom:10px;text-align:center;}
+  .menu-item{display:flex;align-items:center;justify-content:space-between;padding:12px 5px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:all 0.2s;}
+  .menu-item:last-child{border-bottom:none;}
+  .menu-item:hover{padding-left:10px;}
+  .menu-left{display:flex;align-items:center;gap:10px;}
+  .menu-icon{font-size:18px;}
+  .menu-text{color:#F59E0B;font-size:13px;font-weight:500;}
+  .menu-desc{color:#666;font-size:10px;margin-top:2px;}
+  .menu-arrow{color:#666;font-size:16px;}
+  .footer{color:#444;font-size:11px;margin-top:20px;padding-bottom:80px;text-align:center;}
+  .gift-btn{position:fixed;bottom:25px;right:25px;z-index:1000;font-size:40px;cursor:pointer;animation:bounce 1.5s infinite;filter:drop-shadow(0 0 10px gold);}
+  @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+  .gift-box{position:fixed;bottom:90px;right:20px;z-index:1000;width:300px;background:rgba(5,5,20,0.97);border:2px solid #FFD700;border-radius:20px;padding:15px;box-shadow:0 0 30px rgba(245,158,11,0.3);display:none;backdrop-filter:blur(20px);}
+  .gift-box.open{display:block;animation:giftOpen 0.4s ease;}
+  @keyframes giftOpen{0%{transform:scale(0);opacity:0;}50%{transform:scale(1.05);}100%{transform:scale(1);opacity:1;}}
+  .gift-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:8px;}
+  .gift-title{color:#FFD700;font-size:14px;font-weight:bold;}
+  .gift-close{color:#aaa;cursor:pointer;font-size:18px;}
+  .gift-messages{height:180px;overflow-y:auto;margin-bottom:10px;padding:5px;}
+  .gift-messages::-webkit-scrollbar{width:3px;}
+  .gift-messages::-webkit-scrollbar-thumb{background:#FFD700;border-radius:3px;}
+  .msg-bot{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:15px 15px 15px 0;padding:8px 12px;margin:5px 0;color:#FFD700;font-size:12px;max-width:85%;line-height:1.5;}
+  .msg-user{background:rgba(255,255,255,0.08);border-radius:15px 15px 0 15px;padding:8px 12px;margin:5px 0 5px auto;color:white;font-size:12px;max-width:85%;text-align:right;line-height:1.5;}
+  .gift-input-area{display:flex;gap:8px;}
+  .gift-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:8px 12px;color:#FFD700;font-size:12px;outline:none;}
+  .gift-input::placeholder{color:#555;}
+  .gift-send{background:linear-gradient(45deg,#F59E0B,#FFD700);border:none;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:16px;}
+  </style>
+  </head>
+  <body>
+  <canvas id="space-bg"></canvas>
+  <div class="hamburger" onclick="toggleMenu()"><div></div><div></div><div></div></div>
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+  <div class="side-menu" id="sideMenu">
+    <div class="side-menu-title">🎮 Parth's Game Zone</div>
+    <a href="index.html" class="side-item"><span class="side-icon">🏠</span><div><div class="side-text">Home</div><div class="side-desc">Go to homepage</div></div></a>
+    <a href="games.html" class="side-item"><span class="side-icon">🎮</span><div><div class="side-text">Games</div><div class="side-desc">Play all 6 games</div></div></a>
+    <a href="about.html" class="side-item"><span class="side-icon">👤</span><div><div class="side-text">About Me</div><div class="side-desc">Know more about Parth</div></div></a>
+    <a href="mailto:parthhuu.2009@gmail.com" class="side-item"><span class="side-icon">📩</span><div><div class="side-text">Contact</div><div class="side-desc">parthhuu.2009@gmail.com</div></div></a>
+  </div>
+  <h1 style="color:#F59E0B;font-size:20px;margin-bottom:15px;text-align:center;text-shadow:0 0 15px #F59E0B;">🎮 My Game Zone!</h1>
+  <div class="main-layout">
+    <div class="profile-box">
+      <img class="profile-img" src="ChatGPTImageMay30202601_54_36P.jpeg" alt="Parth">
+      <div class="profile-name">Parth Prajapati</div>
+      <div><span class="profile-badge">🖥️ Coder</span><span class="profile-badge">✨ Creator</span></div>
+      <div class="profile-bio">👋 Hey! I'm Parth — a beginner coder.<br>I build games using HTML, CSS & JavaScript.<br>🚀 Currently learning web development!</div>
+      <div class="stats">
+        <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">🎮 Games</div></div>
+        <div class="stat-item"><div class="stat-num">1</div><div class="stat-label">🌐 Website</div></div>
+        <div class="stat-item"><div class="stat-num">2026</div><div class="stat-label">29 MAY Joined</div></div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">1</div>
-        <div class="stat-label">🌐 Website</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">2026</div>
-        <div class="stat-label">29 MAY Joined</div>
-      </div>
+      <div class="skill-tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span><span class="tag">Game Dev</span><span class="tag">Beginner</span></div>
     </div>
-    <div class="skill-tags">
-      <span class="tag">HTML</span>
-      <span class="tag">CSS</span>
-      <span class="tag">JavaScript</span>
-      <span class="tag">Game Dev</span>
-      <span class="tag">Beginner</span>
+    <div class="right-section">
+      <div class="games-box">
+        <div class="games-title">🎮 My Games</div>
+        <div class="divider"></div>
+        <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="Search games..." onkeyup="searchGames()"></div>
+        <div class="card" data-name="car racing"><h2 style="color:#FF4D4D;font-size:15px;">🚗 Car Racing</h2><p style="color:#aaa;font-size:11px;margin:5px 0;">Avoid obstacles & beat your high score!</p><a href="car-game.html"><button class="btn car">▶ Play Car Game</button></a></div>
+        <div class="card" data-name="3d car racing"><h2 style="color:#FFD700;font-size:15px;">🏎️ 3D Car Racing</h2><p style="color:#aaa;font-size:11px;margin:5px 0;">Experience 3D perspective racing!</p><a href="car-3D.html"><button class="btn car3d">▶ Play 3D Car Game</button></a></div>
+        <div class="card" data-name="cricket"><h2 style="color:#38ef7d;font-size:15px;">🏏 Cricket</h2><p style="color:#aaa;font-size:11px;margin:5px 0;">Hit sixes & score maximum runs!</p><a href="cricket-game.html"><button class="btn cricket">▶ Play Cricket</button></a></div>
+        <div class="card" data-name="tata sierra driving"><h2 style="color:#4fc3f7;font-size:15px;">🚙 TATA Sierra</h2><p style="color:#aaa;font-size:11px;margin:5px 0;">Drive the legendary TATA Sierra!</p><a href="sierra-game.html"><button class="btn sierra">▶ Play Sierra Game</button></a></div>
+        <div class="card" data-name="temple run"><h2 style="color:#FF6B35;font-size:15px;">🏃 Temple Run</h2><p style="color:#aaa;font-size:11px;margin:5px 0;">Run, jump & slide — collect coins!</p><a href="temple-run.html"><button class="btn temple">▶ Play Temple Run</button></a></div>
+        <div class="card" data-name="subway run 3d"><h2 style="color:#FF4500;font-size:15px;">🏃 Subway Run 3D</h2><p style="color:#aaa;font-size:11px;margin:5px 0;">Swipe to run, jump & slide!</p><a href="subway-3D.html"><button class="btn subway">▶ Play Subway Run 3D</button></a></div>
+        <div class="no-results" id="noResults">😔 No games found!</div>
+      </div>
+      <div class="menu-box">
+        <div class="menu-title">🌐 Explore</div>
+        <a href="games.html" class="menu-item"><div class="menu-left"><span class="menu-icon">🎮</span><div><div class="menu-text">Games</div><div class="menu-desc">Play all 6 games</div></div></div><span class="menu-arrow">›</span></a>
+        <a href="about.html" class="menu-item"><div class="menu-left"><span class="menu-icon">👤</span><div><div class="menu-text">About Me</div><div class="menu-desc">Know more about Parth</div></div></div><span class="menu-arrow">›</span></a>
+        <a href="mailto:parthhuu.2009@gmail.com" class="menu-item"><div class="menu-left"><span class="menu-icon">📩</span><div><div class="menu-text">Contact</div><div class="menu-desc">parthhuu.2009@gmail.com</div></div></div><span class="menu-arrow">›</span></a>
+      </div>
     </div>
   </div>
-
-  <div class="right-section">
-
-    <div class="games-box">
-      <div class="games-title">🎮 My Games</div>
-      <div class="divider"></div>
-
-      <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search games..." onkeyup="searchGames()">
-      </div>
-
-      <div class="card" data-name="car racing">
-        <h2 style="color:#FF4D4D;font-size:15px;">🚗 Car Racing</h2>
-        <p style="color:#aaa;font-size:11px;margin:5px 0;">Avoid obstacles & beat your high score!</p>
-        <a href="car-game.html"><button class="btn car">▶ Play Car Game</button></a>
-      </div>
-
-      <div class="card" data-name="3d car racing">
-        <h2 style="color:#FFD700;font-size:15px;">🏎️ 3D Car Racing</h2>
-        <p style="color:#aaa;font-size:11px;margin:5px 0;">Experience 3D perspective racing!</p>
-        <a href="car-3D.html"><button class="btn car3d">▶ Play 3D Car Game</button></a>
-      </div>
-
-      <div class="card" data-name="cricket">
-        <h2 style="color:#38ef7d;font-size:15px;">🏏 Cricket</h2>
-        <p style="color:#aaa;font-size:11px;margin:5px 0;">Hit sixes & score maximum runs!</p>
-        <a href="cricket-game.html"><button class="btn cricket">▶ Play Cricket</button></a>
-      </div>
-
-      <div class="card" data-name="tata sierra driving">
-        <h2 style="color:#4fc3f7;font-size:15px;">🚙 TATA Sierra</h2>
-        <p style="color:#aaa;font-size:11px;margin:5px 0;">Drive the legendary TATA Sierra!</p>
-        <a href="sierra-game.html"><button class="btn sierra">▶ Play Sierra Game</button></a>
-      </div>
-
-      <div class="card" data-name="temple run">
-        <h2 style="color:#FF6B35;font-size:15px;">🏃 Temple Run</h2>
-        <p style="color:#aaa;font-size:11px;margin:5px 0;">Run, jump & slide — collect coins!</p>
-        <a href="temple-run.html"><button class="btn temple">▶ Play Temple Run</button></a>
-      </div>
-
-      <div class="card" data-name="subway run 3d">
-        <h2 style="color:#FF4500;font-size:15px;">🏃 Subway Run 3D</h2>
-        <p style="color:#aaa;font-size:11px;margin:5px 0;">Swipe to run, jump & slide!</p>
-        <a href="subway-3D.html"><button class="btn subway">▶ Play Subway Run 3D</button></a>
-      </div>
-
-      <div class="no-results" id="noResults">😔 No games found!</div>
-    </div>
-
-    <div class="menu-box">
-      <div class="menu-title">🌐 Explore</div>
-      <a href="games.html" class="menu-item">
-        <div class="menu-left">
-          <span class="menu-icon">🎮</span>
-          <div><div class="menu-text">Games</div><div class="menu-desc">Play all 6 games</div></div>
-        </div>
-        <span class="menu-arrow">›</span>
-      </a>
-      <a href="about.html" class="menu-item">
-        <div class="menu-left">
-          <span class="menu-icon">👤</span>
-          <div><div class="menu-text">About Me</div><div class="menu-desc">Know more about Parth</div></div>
-        </div>
-        <span class="menu-arrow">›</span>
-      </a>
-      <a href="mailto:parthhuu.2009@gmail.com" class="menu-item">
-        <div class="menu-left">
-          <span class="menu-icon">📩</span>
-          <div><div class="menu-text">Contact</div><div class="menu-desc">parthhuu.2009@gmail.com</div></div>
-        </div>
-        <span class="menu-arrow">›</span>
-      </a>
-    </div>
-
+  <div class="footer">© 2026 Parth's Game Zone | All Rights Reserved</div>
+  <div class="gift-btn" onclick="toggleChat()">🎁</div>
+  <div class="gift-box" id="giftBox">
+    <div class="gift-header"><div class="gift-title">🎁 Ask Me Anything!</div><span class="gift-close" onclick="toggleChat()">✕</span></div>
+    <div class="gift-messages" id="giftMessages"><div class="msg-bot">🎮 Hey! I'm Parth's AI assistant! Ask me anything! 😊</div></div>
+    <div class="gift-input-area"><input class="gift-input" id="giftInput" placeholder="Ask anything..." onkeydown="if(event.key=='Enter') sendMessage()"><button class="gift-send" onclick="sendMessage()">➤</button></div>
   </div>
-
-</div>
-
-<div class="footer">© 2026 Parth's Game Zone | All Rights Reserved</div>
-
-<!-- Gift Chatbot -->
-<div class="gift-btn" onclick="toggleChat()">🎁</div>
-
-<div class="gift-box" id="giftBox">
-  <div class="gift-header">
-    <div class="gift-title">🎁 Ask Me Anything!</div>
-    <span class="gift-close" onclick="toggleChat()">✕</span>
-  </div>
-  <div class="gift-messages" id="giftMessages">
-    <div class="msg-bot">🎮 Hey! I'm Parth's AI assistant! Ask me anything! 😊</div>
-  </div>
-  <div class="gift-input-area">
-    <input class="gift-input" id="giftInput" placeholder="Ask anything..." onkeydown="if(event.key=='Enter') sendMessage()">
-    <button class="gift-send" onclick="sendMessage()">➤</button>
-  </div>
+  <script>
+  function toggleMenu(){document.getElementById('sideMenu').classList.toggle('open');document.getElementById('overlay').classList.toggle('open');}
+  function toggleChat(){document.getElementById('giftBox').classList.toggle('open');}
+  var answers={'parth':['👋 Parth Prajapati is an amazing coder who built this website!','Parth is a beginner coder who built 6 games! 💪'],'game':['🎮 6 games: Car Racing, 3D Car, Cricket, TATA Sierra, Temple Run & Subway Run 3D!'],'car':['🚗 2 car games — Classic Car Racing and 3D Car Racing!'],'cricket':['🏏 Cricket game — hit sixes and score runs!'],'sierra':['🚙 TATA Sierra driving game with speed meter!'],'temple':['🏃 Temple Run — jump, slide, collect coins!'],'subway':['🏃 Subway Run 3D — swipe to play! Real 3D game!'],'contact':['📩 Email: parthhuu.2009@gmail.com'],'hello':['👋 Hello! Welcome to Parth\'s Game Zone!'],'hi':['Hey! 😊 What would you like to know?'],};
+  function sendMessage(){var input=document.getElementById('giftInput');var msg=input.value.trim();if(!msg) return;var messages=document.getElementById('giftMessages');var userDiv=document.createElement('div');userDiv.className='msg-user';userDiv.innerHTML=msg;messages.appendChild(userDiv);input.value='';var lowerMsg=msg.toLowerCase();var reply='🤔 Try asking about Parth, games, or contact! 😊';for(var key in answers){if(lowerMsg.includes(key)){var arr=answers[key];reply=arr[Math.floor(Math.random()*arr.length)];break;}}setTimeout(function(){var botDiv=document.createElement('div');botDiv.className='msg-bot';botDiv.innerHTML='⏳ Thinking...';messages.appendChild(botDiv);messages.scrollTop=messages.scrollHeight;setTimeout(function(){botDiv.innerHTML=reply;messages.scrollTop=messages.scrollHeight;},800);},300);messages.scrollTop=messages.scrollHeight;}
+  function searchGames(){var input=document.getElementById('searchInput').value.toLowerCase();var cards=document.querySelectorAll('.card');var found=0;cards.forEach(function(card){var name=card.getAttribute('data-name');if(name.includes(input)){card.style.display='block';found++;}else{card.style.display='none';}});document.getElementById('noResults').style.display=found==0?'block':'none';}
+  var canvas=document.getElementById('space-bg');var ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;var stars=[];for(var i=0;i<200;i++){stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+0.5,opacity:Math.random(),speed:Math.random()*0.02+0.005});}var planets=[{x:canvas.width*0.08,y:canvas.height*0.2,r:45,type:'earth'},{x:canvas.width*0.92,y:canvas.height*0.15,r:25,type:'mars'},{x:canvas.width*0.85,y:canvas.height*0.75,r:30,type:'saturn'},{x:canvas.width*0.12,y:canvas.height*0.8,r:18,type:'moon'},];function drawEarth(x,y,r){var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);grad.addColorStop(0,'#4fc3f7');grad.addColorStop(0.5,'#1565C0');grad.addColorStop(1,'#0a2a6e');ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();ctx.fillStyle='#2e7d32';ctx.beginPath();ctx.ellipse(x-r*0.2,y-r*0.1,r*0.3,r*0.4,0.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(x+r*0.2,y+r*0.1,r*0.25,r*0.35,0.3,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.3)';ctx.beginPath();ctx.ellipse(x+r*0.1,y-r*0.3,r*0.35,r*0.1,0.2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x,y,r+4,0,Math.PI*2);ctx.strokeStyle='rgba(100,180,255,0.3)';ctx.lineWidth=6;ctx.stroke();}function drawMars(x,y,r){var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);grad.addColorStop(0,'#ff6b35');grad.addColorStop(0.6,'#c0392b');grad.addColorStop(1,'#7b241c');ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();}function drawSaturn(x,y,r){ctx.beginPath();ctx.ellipse(x,y,r*2.2,r*0.4,0,0,Math.PI*2);ctx.strokeStyle='rgba(210,180,140,0.5)';ctx.lineWidth=8;ctx.stroke();var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);grad.addColorStop(0,'#f5deb3');grad.addColorStop(0.5,'#d4a017');grad.addColorStop(1,'#8b6914');ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();ctx.beginPath();ctx.ellipse(x,y+r*0.1,r*2.2,r*0.4,0,0,Math.PI);ctx.strokeStyle='rgba(210,180,140,0.6)';ctx.lineWidth=8;ctx.stroke();}function drawMoon(x,y,r){var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);grad.addColorStop(0,'#e0e0e0');grad.addColorStop(0.7,'#aaa');grad.addColorStop(1,'#777');ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();ctx.fillStyle='rgba(0,0,0,0.15)';ctx.beginPath();ctx.arc(x+r*0.2,y-r*0.2,r*0.2,0,Math.PI*2);ctx.fill();}function drawSpace(){ctx.clearRect(0,0,canvas.width,canvas.height);var bg=ctx.createLinearGradient(0,0,canvas.width,canvas.height);bg.addColorStop(0,'#000005');bg.addColorStop(0.5,'#05001a');bg.addColorStop(1,'#000010');ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);stars.forEach(function(s){s.opacity+=s.speed;if(s.opacity>1||s.opacity<0) s.speed*=-1;ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+Math.abs(s.opacity)+')';ctx.fill();});planets.forEach(function(p){if(p.type=='earth') drawEarth(p.x,p.y,p.r);else if(p.type=='mars') drawMars(p.x,p.y,p.r);else if(p.type=='saturn') drawSaturn(p.x,p.y,p.r);else if(p.type=='moon') drawMoon(p.x,p.y,p.r);});requestAnimationFrame(drawSpace);}drawSpace();
+  </script>
+  </body>
+  </html>
 </div>
 
 <script>
-function toggleMenu(){
-  document.getElementById('sideMenu').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('open');
-}
+// Loading Animation
+var text = "PARTH PRAJAPATI";
+var container = document.getElementById('text-container');
 
-function toggleChat(){
-  document.getElementById('giftBox').classList.toggle('open');
-}
+// Create letters with delay
+text.split('').forEach(function(letter, index){
+  var span = document.createElement('span');
+  span.className = 'letter';
+  span.textContent = letter === ' ' ? '\u00A0' : letter;
+  span.style.animationDelay = (index * 0.1) + 's';
+  container.appendChild(span);
+});
 
-var answers={
-  'parth':['👋 Parth Prajapati is an amazing coder who built this website!','Parth is a beginner coder who built 6 games! 💪'],
-  'game':['🎮 6 games: Car Racing, 3D Car, Cricket, TATA Sierra, Temple Run & Subway Run 3D!'],
-  'car':['🚗 2 car games — Classic Car Racing and 3D Car Racing!'],
-  'cricket':['🏏 Cricket game — hit sixes and score runs!'],
-  'sierra':['🚙 TATA Sierra driving game with speed meter!'],
-  'temple':['🏃 Temple Run — jump, slide, collect coins!'],
-  'subway':['🏃 Subway Run 3D — swipe to play! Real 3D game!'],
-  'contact':['📩 Email: parthhuu.2009@gmail.com'],
-  'hello':['👋 Hello! Welcome to Parth\'s Game Zone!'],
-  'hi':['Hey! 😊 What would you like to know?'],
-};
+// Canvas Background Animation (stars & particles)
+var canvas = document.getElementById('loading-canvas');
+var ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-function sendMessage(){
-  var input=document.getElementById('giftInput');
-  var msg=input.value.trim();
-  if(!msg) return;
-  var messages=document.getElementById('giftMessages');
-  var userDiv=document.createElement('div');
-  userDiv.className='msg-user';
-  userDiv.innerHTML=msg;
-  messages.appendChild(userDiv);
-  input.value='';
-  var lowerMsg=msg.toLowerCase();
-  var reply='🤔 Try asking about Parth, games, or contact! 😊';
-  for(var key in answers){
-    if(lowerMsg.includes(key)){
-      var arr=answers[key];
-      reply=arr[Math.floor(Math.random()*arr.length)];
-      break;
-    }
-  }
-  setTimeout(function(){
-    var botDiv=document.createElement('div');
-    botDiv.className='msg-bot';
-    botDiv.innerHTML='⏳ Thinking...';
-    messages.appendChild(botDiv);
-    messages.scrollTop=messages.scrollHeight;
-    setTimeout(function(){
-      botDiv.innerHTML=reply;
-      messages.scrollTop=messages.scrollHeight;
-    },800);
-  },300);
-  messages.scrollTop=messages.scrollHeight;
-}
-
-function searchGames(){
-  var input=document.getElementById('searchInput').value.toLowerCase();
-  var cards=document.querySelectorAll('.card');
-  var found=0;
-  cards.forEach(function(card){
-    var name=card.getAttribute('data-name');
-    if(name.includes(input)){card.style.display='block';found++;}
-    else{card.style.display='none';}
+var particles = [];
+for(var i=0; i<100; i++){
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 0.5,
+    opacity: Math.random(),
+    speed: Math.random() * 0.01 + 0.005
   });
-  document.getElementById('noResults').style.display=found==0?'block':'none';
 }
 
-var canvas=document.getElementById('space-bg');
-var ctx=canvas.getContext('2d');
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-var stars=[];
-for(var i=0;i<200;i++){
-  stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+0.5,opacity:Math.random(),speed:Math.random()*0.02+0.005});
-}
-var planets=[
-  {x:canvas.width*0.08,y:canvas.height*0.2,r:45,type:'earth'},
-  {x:canvas.width*0.92,y:canvas.height*0.15,r:25,type:'mars'},
-  {x:canvas.width*0.85,y:canvas.height*0.75,r:30,type:'saturn'},
-  {x:canvas.width*0.12,y:canvas.height*0.8,r:18,type:'moon'},
-];
-function drawEarth(x,y,r){
-  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#4fc3f7');grad.addColorStop(0.5,'#1565C0');grad.addColorStop(1,'#0a2a6e');
-  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
-  ctx.fillStyle='#2e7d32';
-  ctx.beginPath();ctx.ellipse(x-r*0.2,y-r*0.1,r*0.3,r*0.4,0.5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(x+r*0.2,y+r*0.1,r*0.25,r*0.35,0.3,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,0.3)';
-  ctx.beginPath();ctx.ellipse(x+r*0.1,y-r*0.3,r*0.35,r*0.1,0.2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(x,y,r+4,0,Math.PI*2);
-  ctx.strokeStyle='rgba(100,180,255,0.3)';ctx.lineWidth=6;ctx.stroke();
-}
-function drawMars(x,y,r){
-  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#ff6b35');grad.addColorStop(0.6,'#c0392b');grad.addColorStop(1,'#7b241c');
-  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
-}
-function drawSaturn(x,y,r){
-  ctx.beginPath();ctx.ellipse(x,y,r*2.2,r*0.4,0,0,Math.PI*2);
-  ctx.strokeStyle='rgba(210,180,140,0.5)';ctx.lineWidth=8;ctx.stroke();
-  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#f5deb3');grad.addColorStop(0.5,'#d4a017');grad.addColorStop(1,'#8b6914');
-  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
-  ctx.beginPath();ctx.ellipse(x,y+r*0.1,r*2.2,r*0.4,0,0,Math.PI);
-  ctx.strokeStyle='rgba(210,180,140,0.6)';ctx.lineWidth=8;ctx.stroke();
-}
-function drawMoon(x,y,r){
-  var grad=ctx.createRadialGradient(x-r*0.3,y-r*0.3,r*0.1,x,y,r);
-  grad.addColorStop(0,'#e0e0e0');grad.addColorStop(0.7,'#aaa');grad.addColorStop(1,'#777');
-  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
-  ctx.fillStyle='rgba(0,0,0,0.15)';
-  ctx.beginPath();ctx.arc(x+r*0.2,y-r*0.2,r*0.2,0,Math.PI*2);ctx.fill();
-}
-function drawSpace(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  var bg=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  bg.addColorStop(0,'#000005');bg.addColorStop(0.5,'#05001a');bg.addColorStop(1,'#000010');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
-  stars.forEach(function(s){
-    s.opacity+=s.speed;
-    if(s.opacity>1||s.opacity<0) s.speed*=-1;
-    ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,'+Math.abs(s.opacity)+')';ctx.fill();
+function animateBackground(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw particles
+  particles.forEach(function(p){
+    p.opacity += p.speed;
+    if(p.opacity > 1 || p.opacity < 0) p.speed *= -1;
+    
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,215,0,' + Math.abs(p.opacity) + ')';
+    ctx.fill();
   });
-  planets.forEach(function(p){
-    if(p.type=='earth') drawEarth(p.x,p.y,p.r);
-    else if(p.type=='mars') drawMars(p.x,p.y,p.r);
-    else if(p.type=='saturn') drawSaturn(p.x,p.y,p.r);
-    else if(p.type=='moon') drawMoon(p.x,p.y,p.r);
-  });
-  requestAnimationFrame(drawSpace);
+  
+  requestAnimationFrame(animateBackground);
 }
-drawSpace();
+
+animateBackground();
+
+// Show website after 4 seconds
+setTimeout(function(){
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('website-content').classList.add('loaded');
+}, 4000);
+
+window.addEventListener('resize', function(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 </script>
 
 </body>
-                               </html>
+</html>
